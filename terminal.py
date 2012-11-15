@@ -30,14 +30,14 @@ class TerminalWin(Gtk.Window):
         super(TerminalWin, self).__init__()
 
         self.configmanager = ConfigManager()
-        self.getconf = self.configmanager.get_conf
+        self.get_conf = self.configmanager.get_conf
 
         self.screen = self.get_screen()
         self.init_transparency()
         self.init_ui()
     
     def on_keypress(self, widget, event):
-        if Gdk.keyval_name(event.keyval) == self.getconf('exit-key'):
+        if Gdk.keyval_name(event.keyval) == self.get_conf('exit-key'):
             Gtk.main_quit()
 
     def init_transparency(self):    
@@ -50,19 +50,19 @@ class TerminalWin(Gtk.Window):
         self.connect('destroy', Gtk.main_quit)
         self.connect('key-press-event', self.on_keypress)
 
-        self.set_decorated( self.getconf('use-border') )
-        self.set_skip_taskbar_hint( not self.getconf('show-in-taskbar'))
+        self.set_decorated( self.get_conf('use-border') )
+        self.set_skip_taskbar_hint( not self.get_conf('show-in-taskbar'))
 
         css_provider = Gtk.CssProvider()
-        css_provider.load_from_data('''*{-GtkPaned-handle-size: %i;}''' % (self.getconf('seperator-size')))
+        css_provider.load_from_data('''*{-GtkPaned-handle-size: %i;}''' % (self.get_conf('seperator-size')))
         style_context = Gtk.StyleContext()
         style_context.add_provider_for_screen(self.screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
-        width = self.getconf('width') * self.screen.get_width() / 100
-        height = self.getconf('height') * self.screen.get_height() / 100
+        width = self.get_conf('width') * self.screen.get_width() / 100
+        height = self.get_conf('height') * self.screen.get_height() / 100
         self.resize(width, height)
 
-        vertical_position = self.getconf('vertical-position') * self.screen.get_height() / 100
+        vertical_position = self.get_conf('vertical-position') * self.screen.get_height() / 100
         
         if vertical_position - (height/2) < 0:
             vertical_position = 0
@@ -71,7 +71,7 @@ class TerminalWin(Gtk.Window):
         else:
             vertical_position = vertical_position - (height/2)
 
-        horizontal_position = self.getconf('horizontal-position') * self.screen.get_width() /100
+        horizontal_position = self.get_conf('horizontal-position') * self.screen.get_width() /100
         if horizontal_position - (width/2) < 0:
             horizontal_position = 0
         elif horizontal_position + (width/2) > self.screen.get_width():

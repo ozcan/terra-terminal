@@ -27,11 +27,11 @@ class ConfigManager():
             {
             'seperator-size': '10',
             'exit-key': 'Escape',
-            'use-border': 'False',
-            'show-in-taskbar': 'False',
+            'use-border': 'True',
+            'show-in-taskbar': 'True',
             'height': '40',
             'width': '50',
-            'horizontal-position': '50',
+            'horizontal-position': '0',
             'vertical-position': '0'
             })
         self.cfg_file = 'main.cfg'
