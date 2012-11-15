@@ -35,8 +35,10 @@ class Preferences():
         builder = Gtk.Builder()
         builder.add_from_file("ui/preferences.ui")
 
-        self.window = builder.get_object("window1")
-        self.window.connect('destroy', Gtk.main_quit)
+        get = builder.get_object
+        self.window = get("window1")
+        self.window.btn_cancel = get("btn_cancel")
+        self.window.btn_cancel.connect("clicked", lambda x: self.window.hide())
 
     def show(self):
         self.window.show_all()
