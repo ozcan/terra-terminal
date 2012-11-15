@@ -25,13 +25,13 @@ class ConfigManager():
     def __init__(self):
         self.config = ConfigParser.SafeConfigParser(
             {
-            'seperator-size': '10',
+            'seperator-size': '2',
             'exit-key': 'Escape',
-            'use-border': 'True',
-            'show-in-taskbar': 'True',
+            'use-border': 'False',
+            'show-in-taskbar': 'False',
             'height': '40',
-            'width': '50',
-            'horizontal-position': '0',
+            'width': '100',
+            'horizontal-position': '50',
             'vertical-position': '0'
             })
         self.cfg_file = 'main.cfg'
