@@ -58,7 +58,7 @@ class TerminalWin(Gtk.Window):
 
         screen = Gdk.Screen.get_default()
         css_provider = Gtk.CssProvider()
-        css_provider.load_from_data("*{-GtkPaned-handle-size: 1;}")
+        css_provider.load_from_data("*{-GtkPaned-handle-size: 3;}")
         style_context = Gtk.StyleContext()
         style_context.add_provider_for_screen(screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
         # set coordinates
