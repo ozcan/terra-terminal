@@ -29,27 +29,20 @@ class TerminalWin(Gtk.Window):
     def __init__(self):
         super(TerminalWin, self).__init__()
 
-        self.configmanager = ConfigManager()
-        self.get_conf = self.configmanager.get_conf
+        ConfigManager.add_callback(self.update_ui)
+        self.get_conf = ConfigManager.get_conf
 
         self.screen = self.get_screen()
         self.init_transparency()
-        self.init_ui()
-    
-    def on_keypress(self, widget, event):
-        if Gdk.keyval_name(event.keyval) == self.get_conf('exit-key'):
-            Gtk.main_quit()
+        self.update_ui()
 
-    def init_transparency(self):    
-        self.set_app_paintable(True)  
-        visual = self.screen.get_rgba_visual()       
-        if visual != None and self.screen.is_composited():
-            self.set_visual(visual)            
-
-    def init_ui(self):
         self.connect('destroy', Gtk.main_quit)
         self.connect('key-press-event', self.on_keypress)
+        self.add(VteObject())
+        self.show_all()
 
+    
+    def update_ui(self):
         self.set_decorated( self.get_conf('use-border') )
         self.set_skip_taskbar_hint( not self.get_conf('show-in-taskbar'))
 
@@ -81,9 +74,15 @@ class TerminalWin(Gtk.Window):
 
         self.move(horizontal_position,vertical_position)
 
-        self.add(VteObject())
+    def on_keypress(self, widget, event):
+        if Gdk.keyval_name(event.keyval) == self.get_conf('exit-key'):
+            Gtk.main_quit()
 
-        self.show_all()
+    def init_transparency(self):    
+        self.set_app_paintable(True)  
+        visual = self.screen.get_rgba_visual()       
+        if visual != None and self.screen.is_composited():
+            self.set_visual(visual)            
 
 def main():
     app = TerminalWin()

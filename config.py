@@ -22,27 +22,29 @@ import ConfigParser
 
 class ConfigManager():
 
-    def __init__(self):
-        self.config = ConfigParser.SafeConfigParser(
-            {
-            'seperator-size': '2',
-            'exit-key': 'Escape',
-            'use-border': 'False',
-            'show-in-taskbar': 'False',
-            'height': '40',
-            'width': '100',
-            'horizontal-position': '50',
-            'vertical-position': '0'
-            })
-        self.cfg_file = 'main.cfg'
-        self.namespace = 'default'
-        self.config.read(self.cfg_file)
+    config = ConfigParser.SafeConfigParser(
+        {
+        'seperator-size': '2',
+        'exit-key': 'Escape',
+        'use-border': 'False',
+        'show-in-taskbar': 'False',
+        'height': '40',
+        'width': '100',
+        'horizontal-position': '50',
+        'vertical-position': '0'
+        })
+    cfg_file = 'main.cfg'
+    namespace = 'DEFAULT'
+    config.read(cfg_file)
 
-    def get_conf(self, key):
+    callback_list = []
+
+    @staticmethod
+    def get_conf(key):
         try:
-            value = self.config.get(self.namespace, key)
-        except ConfigParser.NoOptionError:
-            print "[DEBUG] No option '%s' found in file '%s'" % (key, self.namespace)
+            value = ConfigManager.config.get(ConfigManager.namespace, key)
+        except ConfigParser.Error:
+            print "[DEBUG] No option '%s' found in file '%s'" % (key, ConfigManager.namespace)
             return None
 
         try:
@@ -55,4 +57,35 @@ class ConfigManager():
             else:
                 return value
 
+    @staticmethod
+    def set_conf(key, value):
+        try:
+            ConfigManager.config.set(ConfigManager.namespace, key, value)
+        except ConfigParser.Error:
+            print "[DEBUG] No option '%s' found in file '%s'" % (key, ConfigManager.namespace)
+            return
 
+    @staticmethod
+    def add_callback(method):
+        if not method in ConfigManager.callback_list:
+            ConfigManager.callback_list.append(method)
+
+    @staticmethod
+    def save_config():
+        with open(ConfigManager.cfg_file, 'wb') as configfile:
+            ConfigManager.config.write(configfile)
+            ConfigManager.config.read(cfg_file)
+            
+    @staticmethod
+    def remove_callback(method):
+        if method in ConfigManager.callback_list:
+            for i in xrange(len(ConfigManager.callback_list)):
+                if ConfigManager.callback_list[i] == method:
+                    del ConfigManager.callback_list[i]
+                    print ConfigManager.callback_list
+                    return
+    
+    @staticmethod
+    def callback():
+        for method in ConfigManager.callback_list:
+            method()
