@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 from gi.repository import Gtk, Vte, GLib, Gdk
 import os
 
+from preferences import Preferences
+
 class VteObject(Vte.Terminal):
     def __init__(self, *args, **kwds):
         super(VteObject, self).__init__(*args, **kwds)
@@ -38,6 +40,7 @@ class VteObject(Vte.Terminal):
             self.menu_v_split = Gtk.MenuItem("Split Vertical")
             self.menu_h_split = Gtk.MenuItem("Split Horizontal")
             self.menu_close = Gtk.MenuItem("Close")
+            self.menu_preferences = Gtk.MenuItem("Preferences")
             self.menu_quit = Gtk.MenuItem("Quit")
             self.menu.append(self.menu_copy)
             self.menu.append(self.menu_paste)
@@ -47,17 +50,23 @@ class VteObject(Vte.Terminal):
             self.menu.append(self.menu_h_split)
             self.menu.append(self.menu_close)
             self.menu.append(Gtk.SeparatorMenuItem.new())
+            self.menu.append(self.menu_preferences)
             self.menu.append(self.menu_quit)
             self.menu.show_all()
             self.menu_v_split.connect("activate", self.split_axis, 'h')
             self.menu_h_split.connect("activate", self.split_axis, 'v')
             self.menu_close.connect("activate", self.close_node)
+            self.menu_preferences.connect("activate", self.open_preferences)
             self.menu_quit.connect("activate", Gtk.main_quit)
             self.menu_copy.connect("activate", self.copy_clipboard)
             self.menu_paste.connect("activate", self.paste_clipboard)
             self.menu_select_all.connect("activate", self.select_all)
 
             self.menu.popup(None, None, None, None, event.button, event.time)
+    
+    def open_preferences(self, widget):
+        prefs = Preferences()
+        prefs.show()
 
     def close_node(self, widget):
         parent = self.get_parent()

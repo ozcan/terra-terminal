@@ -85,9 +85,6 @@ class TerminalWin(Gtk.Window):
 
         self.show_all()
 
-
-
-
 def main():
     app = TerminalWin()
     Gtk.main()

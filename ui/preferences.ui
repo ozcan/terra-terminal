@@ -171,10 +171,7 @@
                   <object class="GtkSpinButton" id="spinbutton1">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="max_length">1</property>
                     <property name="invisible_char">•</property>
-                    <property name="overwrite_mode">True</property>
-                    <property name="climb_rate">1</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -199,15 +196,7 @@
               <placeholder/>
             </child>
             <child type="tab">
-              <object class="GtkLabel" id="label2">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Terminal</property>
-              </object>
-              <packing>
-                <property name="position">1</property>
-                <property name="tab_fill">False</property>
-              </packing>
+              <placeholder/>
             </child>
           </object>
           <packing>
@@ -225,7 +214,7 @@
             <property name="margin_bottom">10</property>
             <property name="spacing">5</property>
             <child>
-              <object class="GtkButton" id="button1">
+              <object class="GtkButton" id="btn_ok">
                 <property name="label" translatable="yes">Ok</property>
                 <property name="use_action_appearance">False</property>
                 <property name="width_request">50</property>
@@ -242,7 +231,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button2">
+              <object class="GtkButton" id="btn_cancel">
                 <property name="label" translatable="yes">Cancel</property>
                 <property name="use_action_appearance">False</property>
                 <property name="width_request">50</property>
@@ -259,7 +248,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button3">
+              <object class="GtkButton" id="btn_apply">
                 <property name="label" translatable="yes">Apply</property>
                 <property name="use_action_appearance">False</property>
                 <property name="width_request">50</property>
