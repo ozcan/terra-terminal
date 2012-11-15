@@ -20,65 +20,69 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 from gi.repository import Gtk, Vte, GLib, Gdk
 import os
+
 from VteObject import VteObject
+from config import ConfigManager
 
 class TerminalWin(Gtk.Window):
 
     def __init__(self):
         super(TerminalWin, self).__init__()
-        self.transparency_setup()
-        self.init_ui()
 
-    def toggle_window(self):
-        # this will used by global hotkey later
-        if self.get_visible():
-            self.set_visible(False)
-        else:
-            self.set_visible(True)
+        self.configmanager = ConfigManager()
+        self.getconf = self.configmanager.get_conf
+
+        self.screen = self.get_screen()
+        self.init_transparency()
+        self.init_ui()
     
-    def keypress(self, widget, event):
-        if Gdk.keyval_name(event.keyval) == "Escape":
-            #self.hide()
+    def on_keypress(self, widget, event):
+        if Gdk.keyval_name(event.keyval) == self.getconf('exit-key'):
             Gtk.main_quit()
 
-    def transparency_setup(self):    
+    def init_transparency(self):    
         self.set_app_paintable(True)  
-        screen = self.get_screen()
-        visual = screen.get_rgba_visual()       
-        if visual != None and screen.is_composited():
+        visual = self.screen.get_rgba_visual()       
+        if visual != None and self.screen.is_composited():
             self.set_visual(visual)            
 
     def init_ui(self):
-        # set border type and title
-        self.set_title("Terminal Emulator")
-        self.set_decorated(False)
-        # disable taskbar and alt+tab icons
-        self.set_skip_taskbar_hint(True)
-        self.set_skip_pager_hint(True)
+        self.connect('destroy', Gtk.main_quit)
+        self.connect('key-press-event', self.on_keypress)
 
-        screen = Gdk.Screen.get_default()
+        self.set_decorated( self.getconf('use-border') )
+        self.set_skip_taskbar_hint( not self.getconf('show-in-taskbar'))
+
         css_provider = Gtk.CssProvider()
-        css_provider.load_from_data("*{-GtkPaned-handle-size: 3;}")
+        css_provider.load_from_data('''*{-GtkPaned-handle-size: %i;}''' % (self.getconf('seperator-size')))
         style_context = Gtk.StyleContext()
-        style_context.add_provider_for_screen(screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
-        # set coordinates
-        self.move(0,0)
-        self.resize(self.get_screen().get_width(), 300)
-        # init widgets
-        #self.add(self.vpaned)
-        self.mainpanel = Gtk.VBox(False, 0)
-        self.mainpanel.pack_start(VteObject(),True,True,0)
-        #self.bottommenu = Gtk.HBox(False,0)
-        #self.bottommenu.set_size_request(0,20)
-        #self.mini_logo = Gtk.Image()
-        #self.mini_logo.set_from_file('terminal.svg')
-        #self.bottommenu.pack_start(self.mini_logo,False,False,0)
-        #self.mainpanel.pack_end(self.bottommenu, False,True,0)
-        self.add(self.mainpanel)
-        # connect signals and show window
-        # self.connect("draw", self.on_draw)
-        self.connect("destroy", Gtk.main_quit)
-        self.connect("key-press-event", self.keypress)
+        style_context.add_provider_for_screen(self.screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+
+        width = self.getconf('width') * self.screen.get_width() / 100
+        height = self.getconf('height') * self.screen.get_height() / 100
+        self.resize(width, height)
+
+        vertical_position = self.getconf('vertical-position') * self.screen.get_height() / 100
+        
+        if vertical_position - (height/2) < 0:
+            vertical_position = 0
+        elif vertical_position + (height/2) > self.screen.get_height():
+            vertical_position = self.screen.get_height() - (height/2)
+        else:
+            vertical_position = vertical_position - (height/2)
+
+        horizontal_position = self.getconf('horizontal-position') * self.screen.get_width() /100
+        if horizontal_position - (width/2) < 0:
+            horizontal_position = 0
+        elif horizontal_position + (width/2) > self.screen.get_width():
+            horizontal_position = self.screen.get_width() - (width/2)
+        else:
+            horizontal_position = horizontal_position - (width/2)
+
+        self.move(horizontal_position,vertical_position)
+
+        self.add(VteObject())
+
         self.show_all()
 
 

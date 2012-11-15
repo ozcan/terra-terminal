@@ -27,9 +27,9 @@ class VteObject(Vte.Terminal):
         self.set_background_saturation(20 / 100.0)
         self.set_opacity(int((100 - 20) / 100.0 * 65535))
         self.fork_command_full(Vte.PtyFlags.DEFAULT, os.environ['HOME'],[os.environ['SHELL']],[], GLib.SpawnFlags.DO_NOT_REAP_CHILD,None,None)
-        self.connect("button-release-event", lambda x,y: self.button_press(y))
+        self.connect("button-release-event", self.button_press)
 
-    def button_press(self, event):
+    def button_press(self, widget, event):
         if event.button == 3:
             self.menu = Gtk.Menu()
             self.menu_copy = Gtk.MenuItem("Copy")
@@ -49,17 +49,17 @@ class VteObject(Vte.Terminal):
             self.menu.append(Gtk.SeparatorMenuItem.new())
             self.menu.append(self.menu_quit)
             self.menu.show_all()
-            self.menu_v_split.connect("activate", lambda x: self.split_axis('h'))
-            self.menu_h_split.connect("activate", lambda x: self.split_axis('v'))
-            self.menu_close.connect("activate", lambda x: self.close_node())
-            self.menu_quit.connect("activate", lambda x: Gtk.main_quit())
-            self.menu_copy.connect("activate", lambda x: self.copy_clipboard())
-            self.menu_paste.connect("activate", lambda x: self.paste_clipboard())
-            self.menu_select_all.connect("activate", lambda x: self.select_all())
+            self.menu_v_split.connect("activate", self.split_axis, 'h')
+            self.menu_h_split.connect("activate", self.split_axis, 'v')
+            self.menu_close.connect("activate", self.close_node)
+            self.menu_quit.connect("activate", Gtk.main_quit)
+            self.menu_copy.connect("activate", self.copy_clipboard)
+            self.menu_paste.connect("activate", self.paste_clipboard)
+            self.menu_select_all.connect("activate", self.select_all)
 
             self.menu.popup(None, None, None, None, event.button, event.time)
 
-    def close_node(self):
+    def close_node(self, widget):
         parent = self.get_parent()
         if type(parent) != Gtk.HPaned and type(parent) != Gtk.VPaned:
             return
@@ -71,7 +71,7 @@ class VteObject(Vte.Terminal):
 
         parent.remove(sibling)
         top_level = parent.get_parent()
-        if type(top_level) == TerminalWin:
+        if type(top_level) != Gtk.HPaned and type(top_level) != Gtk.VPaned:
             top_level.remove(parent)
             top_level.add(sibling)
         else:
@@ -83,7 +83,7 @@ class VteObject(Vte.Terminal):
                 top_level.pack2(sibling,True,True)                
 
 
-    def split_axis(self, axis='h'):
+    def split_axis(self, widget, axis='h'):
         parent = self.get_parent()
         if type(parent) == Gtk.HPaned or type(parent) == Gtk.VPaned:
             if parent.get_child1() == self:

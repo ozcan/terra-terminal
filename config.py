@@ -19,25 +19,40 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 """
 
 import ConfigParser
-import os
 
 class ConfigManager():
 
     def __init__(self):
-        self.config = ConfigParser.SafeConfigParser({'bar': '10', 'baz': 'hard'})
+        self.config = ConfigParser.SafeConfigParser(
+            {
+            'seperator-size': '10',
+            'exit-key': 'Escape',
+            'use-border': 'False',
+            'show-in-taskbar': 'False',
+            'height': '40',
+            'width': '50',
+            'horizontal-position': '50',
+            'vertical-position': '0'
+            })
         self.cfg_file = 'main.cfg'
         self.namespace = 'default'
         self.config.read(self.cfg_file)
 
-    def get(self, key):
+    def get_conf(self, key):
         try:
-            return int(self.config.get(self.namespace, key))
-        except ValueError:
-            return self.config.get(self.namespace, key)
+            value = self.config.get(self.namespace, key)
         except ConfigParser.NoOptionError:
             print "[DEBUG] No option '%s' found in file '%s'" % (key, self.namespace)
             return None
-       
 
-a = ConfigManager()
-print a.get('bar')+10
+        try:
+            return int(value)
+        except ValueError:
+            if value == 'True':
+                return True
+            elif value == 'False':
+                return False
+            else:
+                return value
+
+
