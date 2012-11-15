@@ -26,8 +26,7 @@ from config import ConfigManager
 class Preferences():
 
     def __init__(self):
-        self.configmanager = ConfigManager()
-        self.get_conf = self.configmanager.get_conf
+        self.get_conf = ConfigManager.get_conf
 
         self.init_ui()
 

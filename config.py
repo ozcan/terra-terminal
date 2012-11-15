@@ -66,23 +66,22 @@ class ConfigManager():
             return
 
     @staticmethod
-    def add_callback(method):
-        if not method in ConfigManager.callback_list:
-            ConfigManager.callback_list.append(method)
-
-    @staticmethod
     def save_config():
         with open(ConfigManager.cfg_file, 'wb') as configfile:
             ConfigManager.config.write(configfile)
             ConfigManager.config.read(cfg_file)
-            
+
+    @staticmethod
+    def add_callback(method):
+        if not method in ConfigManager.callback_list:
+            ConfigManager.callback_list.append(method)
+
     @staticmethod
     def remove_callback(method):
         if method in ConfigManager.callback_list:
             for i in xrange(len(ConfigManager.callback_list)):
                 if ConfigManager.callback_list[i] == method:
                     del ConfigManager.callback_list[i]
-                    print ConfigManager.callback_list
                     return
     
     @staticmethod
