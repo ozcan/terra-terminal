@@ -21,5 +21,3 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
-config.py
-VteObject.py
