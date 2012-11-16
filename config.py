@@ -69,7 +69,7 @@ class ConfigManager():
     def save_config():
         with open(ConfigManager.cfg_file, 'wb') as configfile:
             ConfigManager.config.write(configfile)
-            ConfigManager.config.read(cfg_file)
+        ConfigManager.config.read(ConfigManager.cfg_file)
 
     @staticmethod
     def add_callback(method):

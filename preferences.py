@@ -27,17 +27,26 @@ class Preferences():
 
     def __init__(self):
         self.get_conf = ConfigManager.get_conf
-
+        self.set_conf = ConfigManager.set_conf
         self.init_ui()
 
     def init_ui(self):
         builder = Gtk.Builder()
-        builder.add_from_file("ui/preferences.ui")
+        builder.add_from_file('ui/preferences.ui')
 
         get = builder.get_object
-        self.window = get("window1")
-        self.window.btn_cancel = get("btn_cancel")
-        self.window.btn_cancel.connect("clicked", lambda x: self.window.hide())
+        self.window = get('window1')
+        self.window.btn_cancel = get('btn_cancel')
+        self.window.btn_cancel.connect('clicked', lambda x: self.window.hide())
+
+        self.window.btn_apply = get("btn_apply")
+        self.window.btn_apply.connect('clicked', self.on_apply_clicked)
 
     def show(self):
         self.window.show_all()
+
+    def on_apply_clicked(self, event):
+        ConfigManager.set_conf('seperator-size','5')
+        ConfigManager.set_conf('width', '50')
+        ConfigManager.save_config()
+        ConfigManager.callback()
