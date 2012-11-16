@@ -26,8 +26,6 @@ from config import ConfigManager
 class Preferences():
 
     def __init__(self):
-        self.get_conf = ConfigManager.get_conf
-        self.set_conf = ConfigManager.set_conf
         self.init_ui()
 
     def init_ui(self):
@@ -35,18 +33,29 @@ class Preferences():
         builder.add_from_file('ui/preferences.ui')
 
         get = builder.get_object
-        self.window = get('window1')
-        self.window.btn_cancel = get('btn_cancel')
-        self.window.btn_cancel.connect('clicked', lambda x: self.window.hide())
+        self.window = get('preferences_window')
 
-        self.window.btn_apply = get("btn_apply")
+        self.window.btn_cancel = get('btn_cancel')
+        self.window.btn_cancel.connect('clicked', self.on_cancel_clicked)
+
+        self.window.btn_apply = get('btn_apply')
         self.window.btn_apply.connect('clicked', self.on_apply_clicked)
+
+        self.window.adj_seperator = get('adjustment_seperator')
+        self.window.adj_seperator.set_value(int(ConfigManager.get_conf('seperator-size')) * 1.0)
+
 
     def show(self):
         self.window.show_all()
 
-    def on_apply_clicked(self, event):
-        ConfigManager.set_conf('seperator-size','5')
-        ConfigManager.set_conf('width', '50')
+    def on_apply_clicked(self, widget):
+        ConfigManager.set_conf('seperator-size',str(int(int(self.window.adj_seperator.get_value()))))
         ConfigManager.save_config()
         ConfigManager.callback()
+
+    def on_ok_clicked(self, widget):
+        on_apply_clicked(self.window.btn_ok)
+        self.window.hide()
+
+    def on_cancel_clicked(self, widget):
+        self.window.hide()
