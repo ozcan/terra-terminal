@@ -23,13 +23,19 @@ import os
 
 from preferences import Preferences
 
+class VteObjectContainer(Gtk.Box):
+    def __init__(self):
+        super(VteObjectContainer, self).__init__()
+        self.pack_start(VteObject(),True,True,0)
+        self.show_all()
+
 class VteObject(Vte.Terminal):
     def __init__(self, *args, **kwds):
         super(VteObject, self).__init__(*args, **kwds)
         self.set_background_saturation(20 / 100.0)
         self.set_opacity(int((100 - 20) / 100.0 * 65535))
         self.fork_command_full(Vte.PtyFlags.DEFAULT, os.environ['HOME'],[os.environ['SHELL']],[], GLib.SpawnFlags.DO_NOT_REAP_CHILD,None,None)
-        self.connect("button-release-event", self.button_press)
+        self.connect('button-release-event', self.button_press)
 
     def button_press(self, widget, event):
         if event.button == 3:
@@ -70,7 +76,7 @@ class VteObject(Vte.Terminal):
 
     def close_node(self, widget):
         parent = self.get_parent()
-        if type(parent) != Gtk.HPaned and type(parent) != Gtk.VPaned:
+        if type(parent) == VteObjectContainer:
             return
 
         if parent.get_child1() == self:
@@ -80,9 +86,9 @@ class VteObject(Vte.Terminal):
 
         parent.remove(sibling)
         top_level = parent.get_parent()
-        if type(top_level) != Gtk.HPaned and type(top_level) != Gtk.VPaned:
+        if type(top_level) == VteObjectContainer:
             top_level.remove(parent)
-            top_level.add(sibling)
+            top_level.pack_start(sibling,True,True,0)
         else:
             if top_level.get_child1() == parent:
                 top_level.remove(parent)
@@ -94,7 +100,7 @@ class VteObject(Vte.Terminal):
 
     def split_axis(self, widget, axis='h'):
         parent = self.get_parent()
-        if type(parent) == Gtk.HPaned or type(parent) == Gtk.VPaned:
+        if type(parent) != VteObjectContainer:
             if parent.get_child1() == self:
                 mode = 1
             else:
@@ -113,7 +119,7 @@ class VteObject(Vte.Terminal):
         paned.pack2(VteObject(),True,True)
         paned.show_all()
         if mode == 0:
-            parent.add(paned)
+            parent.pack_start(paned,True,True,0)
         elif mode == 1:
             parent.pack1(paned,True,True)
         else:

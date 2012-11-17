@@ -18,10 +18,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 """
 
-from gi.repository import Gtk, Vte, GLib, Gdk
+from gi.repository import Gtk, Vte, GLib, Gdk, GdkPixbuf
 import os
 
-from VteObject import VteObject
+from VteObject import VteObject, VteObjectContainer
 from config import ConfigManager
 
 class TerminalWin(Gtk.Window):
@@ -29,22 +29,70 @@ class TerminalWin(Gtk.Window):
     def __init__(self):
         super(TerminalWin, self).__init__()
 
+        self.builder = Gtk.Builder()
+        self.builder.add_from_file('ui/main.ui')
+
         ConfigManager.add_callback(self.update_ui)
         self.get_conf = ConfigManager.get_conf
 
         self.screen = self.get_screen()
+
         self.init_transparency()
+        self.init_ui()
         self.update_ui()
+        self.show()
+        self.add_page()
+
+    def init_ui(self):
+        self.main_container = self.builder.get_object('main_container')
+        self.main_container.unparent()
+
+        self.logo = self.builder.get_object('logo')
+        self.logo_buffer = GdkPixbuf.Pixbuf.new_from_file_at_size('terminal.svg', 32, 32)
+        self.logo.set_from_pixbuf(self.logo_buffer)
+
+        self.notebook = self.builder.get_object('notebook')
+        self.buttonbox = self.builder.get_object('buttonbox')
+        self.radio_group_leader = Gtk.RadioButton()
+        self.buttonbox.pack_start(self.radio_group_leader,False,False,0)
+        self.radio_group_leader.hide()
+        self.radio_button_list = []
+        self.new_page_button = self.builder.get_object('new_page_button')
+        self.new_page_button.connect('clicked', lambda w: self.add_page())
 
         self.connect('destroy', Gtk.main_quit)
         self.connect('key-press-event', self.on_keypress)
-        self.add(VteObject())
-        self.show_all()
 
-    
+        self.add(self.main_container)
+
+
+    def add_page(self):
+        self.notebook.append_page(VteObjectContainer(), None)
+        self.notebook.set_current_page(-1)
+
+        new_button = Gtk.RadioButton.new_with_label_from_widget(self.radio_group_leader, "Terminal " + str(self.notebook.get_current_page()+1))
+        new_button.set_property('draw-indicator', False)
+        new_button.set_active(True)
+        new_button.show()
+        new_button.connect('toggled', self.change_page)
+        self.radio_button_list.append(new_button)
+        self.buttonbox.pack_start(new_button,False,True,0)
+
+    def change_page(self, button):
+        if button.get_active() == False:
+            return
+
+        if not button in self.radio_button_list:
+            return
+
+        for i in xrange(len(self.radio_button_list)):
+            if self.radio_button_list[i] == button:
+                self.notebook.set_current_page(i)
+
     def update_ui(self):
+
         self.set_decorated( self.get_conf('use-border') )
-        self.set_skip_taskbar_hint( not self.get_conf('show-in-taskbar'))
+        self.set_skip_taskbar_hint( self.get_conf('show-in-taskbar'))
 
         css_provider = Gtk.CssProvider()
         css_provider.load_from_data('''*{-GtkPaned-handle-size: %i;}''' % (self.get_conf('seperator-size')))

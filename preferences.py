@@ -41,6 +41,11 @@ class Preferences():
         self.window.btn_apply = get('btn_apply')
         self.window.btn_apply.connect('clicked', self.on_apply_clicked)
 
+        self.window.btn_ok = get('btn_ok')
+        self.window.btn_ok.connect('clicked', self.on_ok_clicked)
+
+
+
         self.window.adj_seperator = get('adjustment_seperator')
         self.window.adj_seperator.set_value(int(ConfigManager.get_conf('seperator-size')) * 1.0)
 
@@ -49,12 +54,13 @@ class Preferences():
         self.window.show_all()
 
     def on_apply_clicked(self, widget):
+
         ConfigManager.set_conf('seperator-size',str(int(int(self.window.adj_seperator.get_value()))))
         ConfigManager.save_config()
         ConfigManager.callback()
 
     def on_ok_clicked(self, widget):
-        on_apply_clicked(self.window.btn_ok)
+        self.on_apply_clicked(self.window.btn_ok)
         self.window.hide()
 
     def on_cancel_clicked(self, widget):
