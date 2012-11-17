@@ -103,7 +103,7 @@ class TerminalWin(Gtk.Window):
     def page_rename(self, menu, sender, rename_dialog=None, rename_dialog_entry_new_name=None):
         if rename_dialog != None and len(rename_dialog_entry_new_name.get_text()) > 0:
             sender.set_label(rename_dialog_entry_new_name.get_text())
-            rename_dialog.destroy()
+            rename_dialog.hide()
             return
 
         rename_dialog = self.builder.get_object('rename_dialog')
@@ -111,7 +111,7 @@ class TerminalWin(Gtk.Window):
         rename_dialog_btn_ok = self.builder.get_object('btn_ok')
         rename_dialog_entry_new_name = self.builder.get_object('entry_new_name')
         rename_dialog_entry_new_name.set_text(sender.get_label())
-        rename_dialog_btn_cancel.connect('clicked', rename_dialog.hide)
+        rename_dialog_btn_cancel.connect('clicked', lambda w: rename_dialog.hide())
         rename_dialog_btn_ok.connect('clicked', self.page_rename, sender, rename_dialog, rename_dialog_entry_new_name)
 
         rename_dialog.show_all()
