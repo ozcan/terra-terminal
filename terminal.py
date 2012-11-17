@@ -52,11 +52,12 @@ class TerminalWin(Gtk.Window):
         self.logo.set_from_pixbuf(self.logo_buffer)
 
         self.notebook = self.builder.get_object('notebook')
+        self.notebook_page_counter = 0
         self.buttonbox = self.builder.get_object('buttonbox')
         self.radio_group_leader = Gtk.RadioButton()
         self.buttonbox.pack_start(self.radio_group_leader,False,False,0)
         self.radio_group_leader.hide()
-        self.radio_button_list = []
+
         self.new_page = self.builder.get_object('new_page_button')
         self.new_page.connect('clicked', lambda w: self.add_page())
 
@@ -70,51 +71,52 @@ class TerminalWin(Gtk.Window):
         self.notebook.append_page(VteObjectContainer(), None)
         self.notebook.set_current_page(-1)
 
-        new_button = Gtk.RadioButton.new_with_label_from_widget(self.radio_group_leader, "Terminal " + str(self.notebook.get_current_page()+1))
+        self.notebook_page_counter += 1
+        new_button = Gtk.RadioButton.new_with_label_from_widget(self.radio_group_leader, "Terminal " + str(self.notebook_page_counter))
         new_button.set_property('draw-indicator', False)
         new_button.set_active(True)
         new_button.show()
         new_button.connect('toggled', self.change_page)
         new_button.connect('button-release-event', self.page_button_mouse_event)
-        self.radio_button_list.append(new_button)
+
         self.buttonbox.pack_start(new_button,False,True,0)
 
     def change_page(self, button):
         if button.get_active() == False:
             return
 
-        if not button in self.radio_button_list:
-            return
-
-        for i in xrange(len(self.radio_button_list)):
-            if self.radio_button_list[i] == button:
-                self.notebook.set_current_page(i)
+        page_no = 0
+        for i in self.buttonbox:
+            if i != self.radio_group_leader:
+                if i == button:
+                    self.notebook.set_current_page(page_no)
+                    return
+                page_no = page_no + 1
 
     def page_button_mouse_event(self, button, event):
         if event.button != 3:
             return
         menu = self.builder.get_object('page_button_menu')
-        menu_rename = self.builder.get_object('menu_rename')
         menu_close = self.builder.get_object('menu_close')
-        menu_rename.connect('activate', self.page_rename, button)
+        menu_close.connect('activate', self.page_close, button)
+        
         menu.show_all()
         menu.popup(None, None, None, None, event.button, event.time)
 
-    def page_rename(self, menu, sender, rename_dialog=None, rename_dialog_entry_new_name=None):
-        if rename_dialog != None and len(rename_dialog_entry_new_name.get_text()) > 0:
-            sender.set_label(rename_dialog_entry_new_name.get_text())
-            rename_dialog.hide()
-            return
 
-        rename_dialog = self.builder.get_object('rename_dialog')
-        rename_dialog_btn_cancel = self.builder.get_object('btn_cancel')
-        rename_dialog_btn_ok = self.builder.get_object('btn_ok')
-        rename_dialog_entry_new_name = self.builder.get_object('entry_new_name')
-        rename_dialog_entry_new_name.set_text(sender.get_label())
-        rename_dialog_btn_cancel.connect('clicked', lambda w: rename_dialog.hide())
-        rename_dialog_btn_ok.connect('clicked', self.page_rename, sender, rename_dialog, rename_dialog_entry_new_name)
 
-        rename_dialog.show_all()
+    def page_close(self, menu, sender):
+        page_no = 0
+        for i in self.buttonbox:
+            if i != self.radio_group_leader:
+                if i == sender and i > 1:
+                    self.notebook.remove_page(page_no)
+                    self.buttonbox.remove(i)
+                    for j in self.buttonbox:
+                        last_button = j
+                    last_button.set_active(True)
+                    return
+                page_no = page_no + 1     
 
     def update_ui(self):
 
