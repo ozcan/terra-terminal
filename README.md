@@ -8,5 +8,5 @@ Screenshot
 Main Window
 ![img](http://i.imgur.com/tFfsw.png "Main window")
 
-Prefences
+Preferences
 ![img](http://i.imgur.com/0MAEO.png "Preferences Window")
