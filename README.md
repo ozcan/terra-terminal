@@ -5,5 +5,8 @@ Tambi is GTK+3.0 based terminal emulator with useful user interface, it also sup
 
 Screenshot
 ========
+Main Window
 ![img](http://i.imgur.com/tFfsw.png "Main window")
+
+Prefences
 ![img](http://i.imgur.com/0MAEO.png "Preferences Window")
