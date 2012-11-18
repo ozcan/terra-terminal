@@ -32,8 +32,8 @@ class VteObjectContainer(Gtk.Box):
 class VteObject(Vte.Terminal):
     def __init__(self, *args, **kwds):
         super(VteObject, self).__init__(*args, **kwds)
-        self.set_background_saturation(20 / 100.0)
-        self.set_opacity(int((100 - 20) / 100.0 * 65535))
+        self.set_background_saturation(30 / 100.0)
+        self.set_opacity(int((100 - 30) / 100.0 * 65535))
         self.fork_command_full(Vte.PtyFlags.DEFAULT, os.environ['HOME'],[os.environ['SHELL']],[], GLib.SpawnFlags.DO_NOT_REAP_CHILD,None,None)
         self.connect('button-release-event', self.button_press)
 
