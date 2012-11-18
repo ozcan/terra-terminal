@@ -33,10 +33,35 @@ class VteObjectContainer(Gtk.Box):
 class VteObject(Vte.Terminal):
     def __init__(self, *args, **kwds):
         super(VteObject, self).__init__(*args, **kwds)
-        self.set_background_saturation(0 / 100.0)
-        self.set_opacity(int((100 - 0) / 100.0 * 65535))
-        self.fork_command_full(Vte.PtyFlags.DEFAULT, os.environ['HOME'],[os.environ['SHELL']],[], GLib.SpawnFlags.DO_NOT_REAP_CHILD,None,None)
+        ConfigManager.add_callback(self.update_ui)
+
+        dir_conf = ConfigManager.get_conf('dir')
+        if dir_conf == '$home$':
+            run_dir = os.environ['HOME']
+        elif dir_conf == '$pwd$':
+            run_dir = os.getcwd()
+        else:
+            run_dir = dir_conf
+
+        self.fork_command_full(
+            Vte.PtyFlags.DEFAULT, 
+            run_dir,
+            [ConfigManager.get_conf('shell')],
+            [], 
+            GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+            None,
+            None)
         self.connect('button-release-event', self.on_button_release)
+
+        self.update_ui()
+
+    def update_ui(self):
+        self.set_background_saturation(ConfigManager.get_conf('transparency') / 100.0)
+        self.set_opacity(int((100 - ConfigManager.get_conf(('transparency'))) / 100.0 * 65535))
+
+        self.set_colors(Gdk.color_parse(ConfigManager.get_conf('color-text')),Gdk.color_parse(ConfigManager.get_conf('color-background')),[])
+
+        self.show_all()
 
     def on_button_release(self, widget, event):
         if event.button == 3:
@@ -96,6 +121,7 @@ class VteObject(Vte.Terminal):
         else:
             sibling = parent.get_child1()
 
+        ConfigManager.remove_callback(self.update_ui)
         parent.remove(sibling)
         top_level = parent.get_parent()
         if type(top_level) == VteObjectContainer:

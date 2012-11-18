@@ -33,23 +33,26 @@ class TerminalWin(Gtk.Window):
         self.builder.add_from_file('ui/main.ui')
 
         ConfigManager.add_callback(self.update_ui)
-        self.get_conf = ConfigManager.get_conf
 
         self.screen = self.get_screen()
 
         self.init_transparency()
         self.init_ui()
         self.update_ui()
-        self.show()
         self.add_page()
 
     def init_ui(self):
+        self.set_title('Tambi Terminal Emulator')
+        self.is_fullscreen = False
+
         self.main_container = self.builder.get_object('main_container')
         self.main_container.unparent()
 
         self.logo = self.builder.get_object('logo')
         self.logo_buffer = GdkPixbuf.Pixbuf.new_from_file_at_size('terminal.svg', 32, 32)
         self.logo.set_from_pixbuf(self.logo_buffer)
+
+        self.set_icon(self.logo_buffer)
 
         self.notebook = self.builder.get_object('notebook')
         self.notebook_page_counter = 0
@@ -141,10 +144,17 @@ class TerminalWin(Gtk.Window):
         self.rename_dialog.hide()
 
     def page_close(self, menu, sender):
+        button_count = 0
+        for i in self.buttonbox:
+            button_count = button_count + 1
+
+        if button_count <= 2:
+            return
+
         page_no = 0
         for i in self.buttonbox:
             if i != self.radio_group_leader:
-                if i == sender and i > 1:
+                if i == sender:
                     self.notebook.remove_page(page_no)
                     self.buttonbox.remove(i)
                     for j in self.buttonbox:
@@ -155,20 +165,24 @@ class TerminalWin(Gtk.Window):
 
     def update_ui(self):
 
-        self.set_decorated( self.get_conf('use-border') )
-        self.set_skip_taskbar_hint( self.get_conf('show-in-taskbar'))
+        self.set_decorated(ConfigManager.get_conf('use-border'))
+
+        self.set_skip_taskbar_hint(ConfigManager.get_conf('skip-taskbar'))
 
         css_provider = Gtk.CssProvider()
-        css_provider.load_from_data('''*{-GtkPaned-handle-size: %i;}''' % (self.get_conf('seperator-size')))
+        css_provider.load_from_data('''*{-GtkPaned-handle-size: %i;}''' % (ConfigManager.get_conf('seperator-size')))
         style_context = Gtk.StyleContext()
         style_context.add_provider_for_screen(self.screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
-        width = self.get_conf('width') * self.screen.get_width() / 100
-        height = self.get_conf('height') * self.screen.get_height() / 100
+        if self.is_fullscreen:
+            width = self.screen.get_width()
+            height = self.screen.get_height()
+        else:
+            width = ConfigManager.get_conf('width') * self.screen.get_width() / 100
+            height = ConfigManager.get_conf('height') * self.screen.get_height() / 100
         self.resize(width, height)
 
-        vertical_position = self.get_conf('vertical-position') * self.screen.get_height() / 100
-        
+        vertical_position = ConfigManager.get_conf('vertical-position') * self.screen.get_height() / 100
         if vertical_position - (height/2) < 0:
             vertical_position = 0
         elif vertical_position + (height/2) > self.screen.get_height():
@@ -176,7 +190,7 @@ class TerminalWin(Gtk.Window):
         else:
             vertical_position = vertical_position - (height/2)
 
-        horizontal_position = self.get_conf('horizontal-position') * self.screen.get_width() /100
+        horizontal_position = ConfigManager.get_conf('horizontal-position') * self.screen.get_width() /100
         if horizontal_position - (width/2) < 0:
             horizontal_position = 0
         elif horizontal_position + (width/2) > self.screen.get_width():
@@ -186,9 +200,17 @@ class TerminalWin(Gtk.Window):
 
         self.move(horizontal_position,vertical_position)
 
+        self.show()
+
     def on_keypress(self, widget, event):
-        if Gdk.keyval_name(event.keyval) == self.get_conf('exit-key'):
-            Gtk.main_quit()
+        if ConfigManager.get_conf('close-with-escape'):
+            if Gdk.keyval_name(event.keyval) == 'Escape':
+                Gtk.main_quit()
+        
+        if ConfigManager.get_conf('allow-fullscreen'):
+            if Gdk.keyval_name(event.keyval) == 'F11':
+                self.is_fullscreen = not self.is_fullscreen
+                self.update_ui()
 
     def init_transparency(self):    
         self.set_app_paintable(True)  

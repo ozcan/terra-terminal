@@ -19,23 +19,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 """
 
 import ConfigParser
+import os
 
 class ConfigManager():
 
     config = ConfigParser.SafeConfigParser(
         {
         'seperator-size': '2',
-        'exit-key': 'Escape',
+        'close-with-escape': 'True',
         'use-border': 'False',
-        'show-in-taskbar': 'False',
+        'skip-taskbar': 'False',
+        'skip-pager': 'False',
         'height': '40',
         'width': '100',
         'horizontal-position': '50',
-        'vertical-position': '0'
+        'vertical-position': '0',
+        'allow-fullscreen': 'True',
+        'color-text': '#ffffffffffff',
+        'color-background': '#000000000000',
+        'transparency': '50',
+        'shell': os.environ['SHELL'],
+        'dir': '$home$'
         })
+    cfg_dir = '/.config/tambi/'
     cfg_file = 'main.cfg'
     namespace = 'DEFAULT'
-    config.read(cfg_file)
+    config.read(os.environ['HOME'] + cfg_dir + cfg_file)
 
     callback_list = []
 
@@ -44,7 +53,7 @@ class ConfigManager():
         try:
             value = ConfigManager.config.get(ConfigManager.namespace, key)
         except ConfigParser.Error:
-            print "[DEBUG] No option '%s' found in file '%s'" % (key, ConfigManager.namespace)
+            print "[DEBUG] No option '%s' found in namespace '%s'" % (key, ConfigManager.namespace)
             return None
 
         try:
@@ -60,15 +69,19 @@ class ConfigManager():
     @staticmethod
     def set_conf(key, value):
         try:
-            ConfigManager.config.set(ConfigManager.namespace, key, value)
+            ConfigManager.config.set(ConfigManager.namespace, key, str(value))
         except ConfigParser.Error:
-            print "[DEBUG] No option '%s' found in file '%s'" % (key, ConfigManager.namespace)
+            print "[DEBUG] No option '%s' found in namespace '%s'" % (key, ConfigManager.namespace)
             return
 
     @staticmethod
     def save_config():
-        with open(ConfigManager.cfg_file, 'wb') as configfile:
+        if not os.path.exists(os.environ['HOME'] + ConfigManager.cfg_dir):
+            os.mkdir(os.environ['HOME'] + ConfigManager.cfg_dir)
+
+        with open(os.environ['HOME'] + ConfigManager.cfg_dir + ConfigManager.cfg_file, 'wb') as configfile:
             ConfigManager.config.write(configfile)
+
         ConfigManager.config.read(ConfigManager.cfg_file)
 
     @staticmethod
