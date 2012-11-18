@@ -96,33 +96,47 @@ class TerminalWin(Gtk.Window):
     def page_button_mouse_event(self, button, event):
         if event.button != 3:
             return
-        menu = self.builder.get_object('page_button_menu')
-        menu_close = self.builder.get_object('menu_close')
-        menu_close.connect('activate', self.page_close, button)
-        
-        self.menu_rename = self.builder.get_object('menu_rename')
-        self.menu_rename_signal = self.menu_rename.connect('activate', self.page_rename_dialog, button)
 
-        menu.show_all()
-        menu.popup(None, None, None, None, event.button, event.time)
+        self.menu = self.builder.get_object('page_button_menu')
+        self.menu_close = self.builder.get_object('menu_close')
+        self.menu_rename = self.builder.get_object('menu_rename')
+
+        try:
+            self.menu_rename.disconnect(self.menu_rename_signal)
+            self.menu_close.disconnect(self.menu_close_signal)
+
+            self.menu_close_signal = self.menu_close.connect('activate', self.page_close, button)
+            self.menu_rename_signal = self.menu_rename.connect('activate', self.page_rename_dialog, button)
+        except:
+            self.menu_close_signal = self.menu_close.connect('activate', self.page_close, button)
+            self.menu_rename_signal = self.menu_rename.connect('activate', self.page_rename_dialog, button)
+
+        self.menu.show_all()
+        self.menu.popup(None, None, None, None, event.button, event.time)
+
+
 
     def page_rename_dialog(self, menu, sender):
-        self.menu_rename.disconnect(self.menu_rename_signal)
-
         self.rename_dialog = self.builder.get_object('rename_dialog')
 
         self.rename_dialog.entry_new_name = self.builder.get_object('entry_new_name')
         self.rename_dialog.entry_new_name.set_text(sender.get_label())
-
         self.rename_dialog.btn_cancel = self.builder.get_object('btn_cancel')
-        self.rename_dialog.btn_cancel.connect('clicked', lambda w: self.rename_dialog.hide())
-
         self.rename_dialog.btn_ok = self.builder.get_object('btn_ok')
-        self.rename_dialog.btn_ok_signal = self.rename_dialog.btn_ok.connect('clicked', lambda w: self.page_rename(sender))
+
+        try:
+            self.rename_dialog.btn_cancel.disconnect(self.rename_dialog.btn_cancel_signal)
+            self.rename_dialog.btn_ok.disconnect(self.rename_dialog.btn_ok_signal)
+
+            self.rename_dialog.btn_cancel_signal = self.rename_dialog.btn_cancel.connect('clicked', lambda w: self.rename_dialog.hide())
+            self.rename_dialog.btn_ok_signal = self.rename_dialog.btn_ok.connect('clicked', lambda w: self.page_rename(sender))
+        except:
+            self.rename_dialog.btn_cancel_signal = self.rename_dialog.btn_cancel.connect('clicked', lambda w: self.rename_dialog.hide())
+            self.rename_dialog.btn_ok_signal = self.rename_dialog.btn_ok.connect('clicked', lambda w: self.page_rename(sender))
+
         self.rename_dialog.show_all()
 
     def page_rename(self, button):
-        self.rename_dialog.btn_ok.disconnect(self.rename_dialog.btn_ok_signal)
         button.set_label(self.rename_dialog.entry_new_name.get_text())
         self.rename_dialog.hide()
 
