@@ -22,6 +22,7 @@ from gi.repository import Gtk, Vte, GLib, Gdk
 import os
 
 from preferences import Preferences
+from config import ConfigManager
 
 class VteObjectContainer(Gtk.Box):
     def __init__(self):
@@ -32,42 +33,53 @@ class VteObjectContainer(Gtk.Box):
 class VteObject(Vte.Terminal):
     def __init__(self, *args, **kwds):
         super(VteObject, self).__init__(*args, **kwds)
-        self.set_background_saturation(30 / 100.0)
-        self.set_opacity(int((100 - 30) / 100.0 * 65535))
+        self.set_background_saturation(0 / 100.0)
+        self.set_opacity(int((100 - 0) / 100.0 * 65535))
         self.fork_command_full(Vte.PtyFlags.DEFAULT, os.environ['HOME'],[os.environ['SHELL']],[], GLib.SpawnFlags.DO_NOT_REAP_CHILD,None,None)
-        self.connect('button-release-event', self.button_press)
+        self.connect('button-release-event', self.on_button_release)
 
-    def button_press(self, widget, event):
+    def on_button_release(self, widget, event):
         if event.button == 3:
             self.menu = Gtk.Menu()
-            self.menu_copy = Gtk.MenuItem("Copy")
-            self.menu_paste = Gtk.MenuItem("Paste")
-            self.menu_select_all = Gtk.MenuItem("Select All")
-            self.menu_v_split = Gtk.MenuItem("Split Vertical")
-            self.menu_h_split = Gtk.MenuItem("Split Horizontal")
-            self.menu_close = Gtk.MenuItem("Close")
-            self.menu_preferences = Gtk.MenuItem("Preferences")
-            self.menu_quit = Gtk.MenuItem("Quit")
-            self.menu.append(self.menu_copy)
-            self.menu.append(self.menu_paste)
-            self.menu.append(self.menu_select_all)
-            self.menu.append(Gtk.SeparatorMenuItem.new())
-            self.menu.append(self.menu_v_split)
-            self.menu.append(self.menu_h_split)
-            self.menu.append(self.menu_close)
-            self.menu.append(Gtk.SeparatorMenuItem.new())
-            self.menu.append(self.menu_preferences)
-            self.menu.append(self.menu_quit)
-            self.menu.show_all()
-            self.menu_v_split.connect("activate", self.split_axis, 'h')
-            self.menu_h_split.connect("activate", self.split_axis, 'v')
-            self.menu_close.connect("activate", self.close_node)
-            self.menu_preferences.connect("activate", self.open_preferences)
-            self.menu_quit.connect("activate", Gtk.main_quit)
-            self.menu_copy.connect("activate", self.copy_clipboard)
-            self.menu_paste.connect("activate", self.paste_clipboard)
-            self.menu_select_all.connect("activate", self.select_all)
 
+            self.menu_copy = Gtk.MenuItem("Copy")
+            self.menu_copy.connect("activate", self.copy_clipboard)
+            self.menu.append(self.menu_copy)
+
+            self.menu_paste = Gtk.MenuItem("Paste")
+            self.menu_paste.connect("activate", self.paste_clipboard)
+            self.menu.append(self.menu_paste)
+
+            self.menu_select_all = Gtk.MenuItem("Select All")
+            self.menu_select_all.connect("activate", self.select_all)
+            self.menu.append(self.menu_select_all)
+
+            self.menu.append(Gtk.SeparatorMenuItem.new())
+
+            self.menu_v_split = Gtk.MenuItem("Split Vertical")
+            self.menu_v_split.connect("activate", self.split_axis, 'h')
+            self.menu.append(self.menu_v_split)
+
+            self.menu_h_split = Gtk.MenuItem("Split Horizontal")
+            self.menu_h_split.connect("activate", self.split_axis, 'v')
+            self.menu.append(self.menu_h_split)
+
+            self.menu_close = Gtk.MenuItem("Close")
+            self.menu_close.connect("activate", self.close_node)
+            self.menu.append(self.menu_close)
+
+            self.menu.append(Gtk.SeparatorMenuItem.new())
+
+            self.menu_preferences = Gtk.MenuItem("Preferences")
+            self.menu_preferences.connect("activate", self.open_preferences)
+            self.menu.append(self.menu_preferences)
+
+            self.menu_quit = Gtk.MenuItem("Quit")
+            self.menu_quit.connect("activate", Gtk.main_quit)
+            self.menu.append(self.menu_quit)
+            
+            self.menu.show_all()
+                      
             self.menu.popup(None, None, None, None, event.button, event.time)
     
     def open_preferences(self, widget):
