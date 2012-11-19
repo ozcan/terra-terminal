@@ -105,7 +105,12 @@ class Preferences():
         self.clear_background_image = builder.get_object('clear_background_image')
         self.clear_background_image.connect('clicked', lambda w: self.background_image.unselect_all())
 
+        self.font_name = builder.get_object('font_name')
+        self.font_name.set_font_name(ConfigManager.get_conf('font-name'))
 
+        self.chk_use_system_font = builder.get_object('chk_use_system_font')
+        self.chk_use_system_font.connect('toggled', lambda w: self.font_name.set_sensitive(not self.chk_use_system_font.get_active()))
+        self.chk_use_system_font.set_active(ConfigManager.get_conf('use-default-font'))
     def show(self):
         self.window.show_all()
 
@@ -144,6 +149,10 @@ class Preferences():
             ConfigManager.set_conf('dir', self.dir_custom.get_text())
 
         ConfigManager.set_conf('background-image', self.background_image.get_filename())
+
+        ConfigManager.set_conf('use-default-font', self.chk_use_system_font.get_active())
+
+        ConfigManager.set_conf('font-name', self.font_name.get_font_name())
 
         ConfigManager.save_config()
         ConfigManager.callback()

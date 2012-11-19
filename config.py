@@ -40,7 +40,9 @@ class ConfigManager():
         'transparency': '50',
         'shell': os.environ['SHELL'],
         'dir': '$home$',
-        'background-image': ''
+        'background-image': '',
+        'use-default-font': 'True',
+        'font-name': 'Monospace 10'
         })
     cfg_dir = '/.config/tambi/'
     cfg_file = 'main.cfg'

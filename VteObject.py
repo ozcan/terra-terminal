@@ -63,6 +63,9 @@ class VteObject(Vte.Terminal):
 
         self.set_background_image_file(ConfigManager.get_conf('background-image'))
 
+        if not ConfigManager.get_conf('use-default-font'):
+            self.set_font_from_string(ConfigManager.get_conf('font-name'))
+
         self.show_all()
 
     def on_button_release(self, widget, event):
