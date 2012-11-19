@@ -42,7 +42,8 @@ class ConfigManager():
         'dir': '$home$',
         'background-image': '',
         'use-default-font': 'True',
-        'font-name': 'Monospace 10'
+        'font-name': 'Monospace 10',
+        'show-scrollbar': 'True'
         })
     cfg_dir = '/.config/tambi/'
     cfg_file = 'main.cfg'

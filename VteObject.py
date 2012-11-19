@@ -27,15 +27,20 @@ from config import ConfigManager
 class VteObjectContainer(Gtk.Box):
     def __init__(self):
         super(VteObjectContainer, self).__init__()
-        self.vscroll = Gtk.VScrollbar()
         self.pack_start(VteObject(),True,True,0)
-        self.pack_end(self.vscroll,False,True,0)
         self.show_all()
 
-class VteObject(Vte.Terminal):
-    def __init__(self, *args, **kwds):
-        super(VteObject, self).__init__(*args, **kwds)
+class VteObject(Gtk.Box):
+    def __init__(self):
+        super(VteObject, self).__init__()
         ConfigManager.add_callback(self.update_ui)
+
+        self.vte = Vte.Terminal()
+        self.pack_start(self.vte,True,True,0)
+        if ConfigManager.get_conf('show-scrollbar'):
+            self.vscroll = Gtk.VScrollbar()
+            self.vscroll.set_adjustment(self.vte.get_vadjustment())
+            self.pack_end(self.vscroll,False,True,0)
 
         dir_conf = ConfigManager.get_conf('dir')
         if dir_conf == '$home$':
@@ -45,7 +50,7 @@ class VteObject(Vte.Terminal):
         else:
             run_dir = dir_conf
 
-        self.fork_command_full(
+        self.vte.fork_command_full(
             Vte.PtyFlags.DEFAULT, 
             run_dir,
             [ConfigManager.get_conf('shell')],
@@ -53,20 +58,22 @@ class VteObject(Vte.Terminal):
             GLib.SpawnFlags.DO_NOT_REAP_CHILD,
             None,
             None)
-        self.connect('button-release-event', self.on_button_release)
+        
+
+        self.vte.connect('button-release-event', self.on_button_release)
 
         self.update_ui()
 
     def update_ui(self):
-        self.set_background_saturation(ConfigManager.get_conf('transparency') / 100.0)
-        self.set_opacity(int((100 - ConfigManager.get_conf(('transparency'))) / 100.0 * 65535))
+        self.vte.set_background_saturation(ConfigManager.get_conf('transparency') / 100.0)
+        self.vte.set_opacity(int((100 - ConfigManager.get_conf(('transparency'))) / 100.0 * 65535))
 
-        self.set_colors(Gdk.color_parse(ConfigManager.get_conf('color-text')),Gdk.color_parse(ConfigManager.get_conf('color-background')),[])
+        self.vte.set_colors(Gdk.color_parse(ConfigManager.get_conf('color-text')),Gdk.color_parse(ConfigManager.get_conf('color-background')),[])
 
-        self.set_background_image_file(ConfigManager.get_conf('background-image'))
+        self.vte.set_background_image_file(ConfigManager.get_conf('background-image'))
 
         if not ConfigManager.get_conf('use-default-font'):
-            self.set_font_from_string(ConfigManager.get_conf('font-name'))
+            self.vte.set_font_from_string(ConfigManager.get_conf('font-name'))
 
         self.show_all()
 
@@ -75,15 +82,15 @@ class VteObject(Vte.Terminal):
             self.menu = Gtk.Menu()
 
             self.menu_copy = Gtk.MenuItem("Copy")
-            self.menu_copy.connect("activate", self.copy_clipboard)
+            self.menu_copy.connect("activate", self.vte.copy_clipboard)
             self.menu.append(self.menu_copy)
 
             self.menu_paste = Gtk.MenuItem("Paste")
-            self.menu_paste.connect("activate", self.paste_clipboard)
+            self.menu_paste.connect("activate", self.vte.paste_clipboard)
             self.menu.append(self.menu_paste)
 
             self.menu_select_all = Gtk.MenuItem("Select All")
-            self.menu_select_all.connect("activate", self.select_all)
+            self.menu_select_all.connect("activate", self.vte.select_all)
             self.menu.append(self.menu_select_all)
 
             self.menu.append(Gtk.SeparatorMenuItem.new())

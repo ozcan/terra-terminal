@@ -112,6 +112,8 @@ class Preferences():
         self.chk_use_system_font.connect('toggled', lambda w: self.font_name.set_sensitive(not self.chk_use_system_font.get_active()))
         self.chk_use_system_font.set_active(ConfigManager.get_conf('use-default-font'))
         
+        self.chk_show_scrollbar = builder.get_object('chk_show_scrollbar')
+        self.chk_show_scrollbar.set_active(ConfigManager.get_conf('show-scrollbar'))
     def show(self):
         self.window.show_all()
 
@@ -154,6 +156,8 @@ class Preferences():
         ConfigManager.set_conf('use-default-font', self.chk_use_system_font.get_active())
 
         ConfigManager.set_conf('font-name', self.font_name.get_font_name())
+
+        ConfigManager.set_conf('show-scrollbar', self.chk_show_scrollbar.get_active())
 
         ConfigManager.save_config()
         ConfigManager.callback()
