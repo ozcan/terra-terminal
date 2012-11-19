@@ -56,7 +56,7 @@ class ConfigManager():
         try:
             value = ConfigManager.config.get(ConfigManager.namespace, key)
         except ConfigParser.Error:
-            print "[DEBUG] No option '%s' found in namespace '%s'" % (key, ConfigManager.namespace)
+            print "[DEBUG] No option '%s' found in namespace '%s'." % (key, ConfigManager.namespace)
             return None
 
         try:
@@ -74,7 +74,7 @@ class ConfigManager():
         try:
             ConfigManager.config.set(ConfigManager.namespace, key, str(value))
         except ConfigParser.Error:
-            print "[DEBUG] No option '%s' found in namespace '%s'" % (key, ConfigManager.namespace)
+            print "[DEBUG] No option '%s' found in namespace '%s'." % (key, ConfigManager.namespace)
             return
 
     @staticmethod

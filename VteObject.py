@@ -27,7 +27,9 @@ from config import ConfigManager
 class VteObjectContainer(Gtk.Box):
     def __init__(self):
         super(VteObjectContainer, self).__init__()
+        self.vscroll = Gtk.VScrollbar()
         self.pack_start(VteObject(),True,True,0)
+        self.pack_end(self.vscroll,False,True,0)
         self.show_all()
 
 class VteObject(Vte.Terminal):

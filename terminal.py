@@ -124,6 +124,7 @@ class TerminalWin(Gtk.Window):
 
         self.rename_dialog.entry_new_name = self.builder.get_object('entry_new_name')
         self.rename_dialog.entry_new_name.set_text(sender.get_label())
+        
         self.rename_dialog.btn_cancel = self.builder.get_object('btn_cancel')
         self.rename_dialog.btn_ok = self.builder.get_object('btn_ok')
 

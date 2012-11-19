@@ -111,6 +111,7 @@ class Preferences():
         self.chk_use_system_font = builder.get_object('chk_use_system_font')
         self.chk_use_system_font.connect('toggled', lambda w: self.font_name.set_sensitive(not self.chk_use_system_font.get_active()))
         self.chk_use_system_font.set_active(ConfigManager.get_conf('use-default-font'))
+        
     def show(self):
         self.window.show_all()
 
