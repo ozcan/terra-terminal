@@ -82,15 +82,15 @@ class VteObject(Gtk.Box):
             self.menu = Gtk.Menu()
 
             self.menu_copy = Gtk.MenuItem("Copy")
-            self.menu_copy.connect("activate", self.vte.copy_clipboard)
+            self.menu_copy.connect("activate", lambda w: self.vte.copy_clipboard())
             self.menu.append(self.menu_copy)
 
             self.menu_paste = Gtk.MenuItem("Paste")
-            self.menu_paste.connect("activate", self.vte.paste_clipboard)
+            self.menu_paste.connect("activate", lambda w: self.vte.paste_clipboard())
             self.menu.append(self.menu_paste)
 
             self.menu_select_all = Gtk.MenuItem("Select All")
-            self.menu_select_all.connect("activate", self.vte.select_all)
+            self.menu_select_all.connect("activate", lambda w: self.vte.select_all())
             self.menu.append(self.menu_select_all)
 
             self.menu.append(Gtk.SeparatorMenuItem.new())
