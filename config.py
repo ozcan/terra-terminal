@@ -39,7 +39,8 @@ class ConfigManager():
         'color-background': '#000000000000',
         'transparency': '50',
         'shell': os.environ['SHELL'],
-        'dir': '$home$'
+        'dir': '$home$',
+        'background-image': ''
         })
     cfg_dir = '/.config/tambi/'
     cfg_file = 'main.cfg'

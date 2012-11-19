@@ -99,11 +99,17 @@ class Preferences():
             self.dir_custom.set_text(dir_conf)
             self.dir_custom.set_sensitive(True)
 
+        self.background_image = builder.get_object('background_image')
+        self.background_image.set_filename(ConfigManager.get_conf('background-image'))
+
+        self.clear_background_image = builder.get_object('clear_background_image')
+        self.clear_background_image.connect('clicked', lambda w: self.background_image.unselect_all())
+
+
     def show(self):
         self.window.show_all()
 
     def on_apply_clicked(self, widget):
-
         ConfigManager.set_conf('seperator-size',int(self.window.adj_seperator.get_value()))
 
         ConfigManager.set_conf('width',int(self.window.adj_width.get_value()))
@@ -136,6 +142,8 @@ class Preferences():
             ConfigManager.set_conf('dir', '$pwd$')
         else:
             ConfigManager.set_conf('dir', self.dir_custom.get_text())
+
+        ConfigManager.set_conf('background-image', self.background_image.get_filename())
 
         ConfigManager.save_config()
         ConfigManager.callback()

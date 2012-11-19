@@ -61,6 +61,8 @@ class VteObject(Vte.Terminal):
 
         self.set_colors(Gdk.color_parse(ConfigManager.get_conf('color-text')),Gdk.color_parse(ConfigManager.get_conf('color-background')),[])
 
+        self.set_background_image_file(ConfigManager.get_conf('background-image'))
+
         self.show_all()
 
     def on_button_release(self, widget, event):
