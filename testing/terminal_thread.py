@@ -21,6 +21,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 from gi.repository import Gtk, Vte, GLib, Gdk, GdkPixbuf
 import os
 
+try:
+    from Xlib.display import Display
+    from Xlib import X
+    import threading
+    GLib.threads_init()
+    is_xlib_available = True
+except:
+    print "python-xlib not found"
+    is_xlib_available = False
+
 from VteObject import VteObject, VteObjectContainer
 from config import ConfigManager
 
@@ -224,11 +234,40 @@ class TerminalWin(Gtk.Window):
         self.set_visible(not self.get_visible())
 
 
+class Keybinder(threading.Thread):
+    def __init__(self, callback, keycode):
+        super(Keybinder, self).__init__()
+        self.keycode = keycode
+        self.callback = callback
+        self.quit = False
+
+    def run(self):
+        disp = Display()
+        root = disp.screen().root
+        root.change_attributes(event_mask = X.KeyPressMask)
+        root.grab_key(self.keycode, X.AnyModifier, 1,X.GrabModeAsync, X.GrabModeAsync)
+        while 1:
+            event = root.display.next_event()
+            self.handle(event)
+            
+    def handle(self, XEvent):
+        if XEvent.type == X.KeyPress:
+            self.callback()
+
 
 def main():
     app = TerminalWin()
 
+    if is_xlib_available:
+        keybinder = Keybinder(app.show_hide, 96)
+        keybinder.daemon = True
+        keybinder.start()
+
     Gtk.main()
+
+    if is_xlib_available:
+        keybinder.quit = True
+        
         
 if __name__ == "__main__":    
     main()
