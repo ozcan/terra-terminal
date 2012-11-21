@@ -19,6 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 """
 
 from gi.repository import Gtk, Vte, GLib, Gdk, GdkPixbuf
+try:
+    from gi.repository import Keybinder
+    keybinder_available = True
+except:
+    keybinder_available = False
+
 import os
 
 from VteObject import VteObject, VteObjectContainer
@@ -207,7 +213,7 @@ class TerminalWin(Gtk.Window):
     def on_keypress(self, widget, event):
         if ConfigManager.get_conf('close-with-escape'):
             if Gdk.keyval_name(event.keyval) == 'Escape':
-                Gtk.main_quit()
+                self.hide()
         
         if ConfigManager.get_conf('allow-fullscreen'):
             if Gdk.keyval_name(event.keyval) == 'F11':
@@ -220,14 +226,15 @@ class TerminalWin(Gtk.Window):
         if visual != None and self.screen.is_composited():
             self.set_visual(visual)
 
-    def show_hide(self):
+    def show_hide(self, arg1, arg2):
         self.set_visible(not self.get_visible())
 
 
 
 def main():
     app = TerminalWin()
-
+    Keybinder.init()
+    Keybinder.bind('F12',app.show_hide, None)
     Gtk.main()
         
 if __name__ == "__main__":    
