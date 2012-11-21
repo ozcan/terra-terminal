@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 import ConfigParser
 import os
 
-class ConfigManager():
 
+class  ConfigManager():
     config = ConfigParser.SafeConfigParser(
         {
         'seperator-size': '2',
@@ -45,10 +45,13 @@ class ConfigManager():
         'font-name': 'Monospace 10',
         'show-scrollbar': 'True'
         })
+
     cfg_dir = '/.config/tambi/'
     cfg_file = 'main.cfg'
+    cfg_full_path = os.environ['HOME'] + cfg_dir + cfg_file
+
     namespace = 'DEFAULT'
-    config.read(os.environ['HOME'] + cfg_dir + cfg_file)
+    config.read(cfg_full_path)
 
     callback_list = []
 
@@ -57,7 +60,8 @@ class ConfigManager():
         try:
             value = ConfigManager.config.get(ConfigManager.namespace, key)
         except ConfigParser.Error:
-            print "[DEBUG] No option '%s' found in namespace '%s'." % (key, ConfigManager.namespace)
+            print ("[DEBUG] No option '%s' found in namespace '%s'." %
+                    (key, ConfigManager.namespace))
             return None
 
         try:
@@ -75,7 +79,8 @@ class ConfigManager():
         try:
             ConfigManager.config.set(ConfigManager.namespace, key, str(value))
         except ConfigParser.Error:
-            print "[DEBUG] No option '%s' found in namespace '%s'." % (key, ConfigManager.namespace)
+            print ("[DEBUG] No option '%s' found in namespace '%s'." %
+                    (key, ConfigManager.namespace))
             return
 
     @staticmethod
@@ -83,7 +88,7 @@ class ConfigManager():
         if not os.path.exists(os.environ['HOME'] + ConfigManager.cfg_dir):
             os.mkdir(os.environ['HOME'] + ConfigManager.cfg_dir)
 
-        with open(os.environ['HOME'] + ConfigManager.cfg_dir + ConfigManager.cfg_file, 'wb') as configfile:
+        with open(ConfigManager.cfg_full_path, 'wb') as configfile:
             ConfigManager.config.write(configfile)
 
         ConfigManager.config.read(ConfigManager.cfg_file)
@@ -100,7 +105,7 @@ class ConfigManager():
                 if ConfigManager.callback_list[i] == method:
                     del ConfigManager.callback_list[i]
                     return
-    
+
     @staticmethod
     def callback():
         for method in ConfigManager.callback_list:

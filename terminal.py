@@ -19,16 +19,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 """
 
 from gi.repository import Gtk, Vte, GLib, Gdk, GdkPixbuf
+
 try:
     from gi.repository import Keybinder
     keybinder_available = True
 except:
     keybinder_available = False
 
-import os
-
 from VteObject import VteObject, VteObjectContainer
 from config import ConfigManager
+
+import os
+
 
 class TerminalWin(Gtk.Window):
 
@@ -55,7 +57,8 @@ class TerminalWin(Gtk.Window):
         self.main_container.unparent()
 
         self.logo = self.builder.get_object('logo')
-        self.logo_buffer = GdkPixbuf.Pixbuf.new_from_file_at_size('terminal.svg', 32, 32)
+        self.logo_buffer = GdkPixbuf.Pixbuf.new_from_file_at_size(
+            'terminal.svg', 32, 32)
         self.logo.set_from_pixbuf(self.logo_buffer)
 
         self.set_icon(self.logo_buffer)
@@ -64,7 +67,7 @@ class TerminalWin(Gtk.Window):
         self.notebook_page_counter = 0
         self.buttonbox = self.builder.get_object('buttonbox')
         self.radio_group_leader = Gtk.RadioButton()
-        self.buttonbox.pack_start(self.radio_group_leader,False,False,0)
+        self.buttonbox.pack_start(self.radio_group_leader, False, False, 0)
         self.radio_group_leader.hide()
 
         self.new_page = self.builder.get_object('new_page_button')
@@ -81,13 +84,14 @@ class TerminalWin(Gtk.Window):
 
         self.notebook_page_counter += 1
         new_button = Gtk.RadioButton.new_with_label_from_widget(self.radio_group_leader, "Terminal " + str(self.notebook_page_counter))
+
         new_button.set_property('draw-indicator', False)
         new_button.set_active(True)
         new_button.show()
         new_button.connect('toggled', self.change_page)
         new_button.connect('button-release-event', self.page_button_mouse_event)
 
-        self.buttonbox.pack_start(new_button,False,True,0)
+        self.buttonbox.pack_start(new_button, False, True, 0)
 
     def change_page(self, button):
         if button.get_active() == False:
@@ -122,14 +126,12 @@ class TerminalWin(Gtk.Window):
         self.menu.show_all()
         self.menu.popup(None, None, None, None, event.button, event.time)
 
-
-
     def page_rename_dialog(self, menu, sender):
         self.rename_dialog = self.builder.get_object('rename_dialog')
 
         self.rename_dialog.entry_new_name = self.builder.get_object('entry_new_name')
         self.rename_dialog.entry_new_name.set_text(sender.get_label())
-        
+
         self.rename_dialog.btn_cancel = self.builder.get_object('btn_cancel')
         self.rename_dialog.btn_ok = self.builder.get_object('btn_ok')
 
@@ -167,7 +169,7 @@ class TerminalWin(Gtk.Window):
                         last_button = j
                     last_button.set_active(True)
                     return
-                page_no = page_no + 1     
+                page_no = page_no + 1
 
     def update_ui(self):
 
@@ -191,22 +193,22 @@ class TerminalWin(Gtk.Window):
             self.resize(width, height)
 
         vertical_position = ConfigManager.get_conf('vertical-position') * self.screen.get_height() / 100
-        if vertical_position - (height/2) < 0:
+        if vertical_position - (height / 2) < 0:
             vertical_position = 0
-        elif vertical_position + (height/2) > self.screen.get_height():
-            vertical_position = self.screen.get_height() - (height/2)
+        elif vertical_position + (height / 2) > self.screen.get_height():
+            vertical_position = self.screen.get_height() - (height / 2)
         else:
-            vertical_position = vertical_position - (height/2)
+            vertical_position = vertical_position - (height / 2)
 
-        horizontal_position = ConfigManager.get_conf('horizontal-position') * self.screen.get_width() /100
-        if horizontal_position - (width/2) < 0:
+        horizontal_position = ConfigManager.get_conf('horizontal-position') * self.screen.get_width() / 100
+        if horizontal_position - (width / 2) < 0:
             horizontal_position = 0
-        elif horizontal_position + (width/2) > self.screen.get_width():
-            horizontal_position = self.screen.get_width() - (width/2)
+        elif horizontal_position + (width / 2) > self.screen.get_width():
+            horizontal_position = self.screen.get_width() - (width / 2)
         else:
-            horizontal_position = horizontal_position - (width/2)
+            horizontal_position = horizontal_position - (width / 2)
 
-        self.move(horizontal_position,vertical_position)
+        self.move(horizontal_position, vertical_position)
 
         self.show()
 
@@ -214,15 +216,15 @@ class TerminalWin(Gtk.Window):
         if ConfigManager.get_conf('close-with-escape'):
             if Gdk.keyval_name(event.keyval) == 'Escape':
                 self.hide()
-        
+
         if ConfigManager.get_conf('allow-fullscreen'):
             if Gdk.keyval_name(event.keyval) == 'F11':
                 self.is_fullscreen = not self.is_fullscreen
                 self.update_ui()
 
-    def init_transparency(self):    
-        self.set_app_paintable(True)  
-        visual = self.screen.get_rgba_visual()       
+    def init_transparency(self):
+        self.set_app_paintable(True)
+        visual = self.screen.get_rgba_visual()
         if visual != None and self.screen.is_composited():
             self.set_visual(visual)
 
@@ -230,12 +232,14 @@ class TerminalWin(Gtk.Window):
         self.set_visible(not self.get_visible())
 
 
-
 def main():
     app = TerminalWin()
-    Keybinder.init()
-    Keybinder.bind('F12',app.show_hide, None)
+    if keybinder_available:
+        Keybinder.init()
+        Keybinder.bind('F12', app.show_hide, None)
+    else:
+        print "[DEBUG] Missing dependencies: libkeybinder3.0, gir1.2-keybinder3.0"
     Gtk.main()
-        
-if __name__ == "__main__":    
+
+if __name__ == "__main__":
     main()

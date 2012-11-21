@@ -23,6 +23,7 @@ import os
 
 from config import ConfigManager
 
+
 class Preferences():
 
     def __init__(self):
@@ -111,20 +112,21 @@ class Preferences():
         self.chk_use_system_font = builder.get_object('chk_use_system_font')
         self.chk_use_system_font.connect('toggled', lambda w: self.font_name.set_sensitive(not self.chk_use_system_font.get_active()))
         self.chk_use_system_font.set_active(ConfigManager.get_conf('use-default-font'))
-        
+
         self.chk_show_scrollbar = builder.get_object('chk_show_scrollbar')
         self.chk_show_scrollbar.set_active(ConfigManager.get_conf('show-scrollbar'))
+
     def show(self):
         self.window.show_all()
 
     def on_apply_clicked(self, widget):
-        ConfigManager.set_conf('seperator-size',int(self.window.adj_seperator.get_value()))
+        ConfigManager.set_conf('seperator-size', int(self.window.adj_seperator.get_value()))
 
-        ConfigManager.set_conf('width',int(self.window.adj_width.get_value()))
+        ConfigManager.set_conf('width', int(self.window.adj_width.get_value()))
 
-        ConfigManager.set_conf('height',int(self.window.adj_height.get_value()))
+        ConfigManager.set_conf('height', int(self.window.adj_height.get_value()))
 
-        ConfigManager.set_conf('transparency',int(self.window.adj_transparency.get_value()))
+        ConfigManager.set_conf('transparency', int(self.window.adj_transparency.get_value()))
 
         ConfigManager.set_conf('vertical-position', self.v_alig.get_active() * 50)
 
