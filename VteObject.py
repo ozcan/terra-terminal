@@ -24,11 +24,13 @@ import os
 from preferences import Preferences
 from config import ConfigManager
 
+
 class VteObjectContainer(Gtk.Box):
     def __init__(self):
         super(VteObjectContainer, self).__init__()
-        self.pack_start(VteObject(),True,True,0)
+        self.pack_start(VteObject(), True, True, 0)
         self.show_all()
+
 
 class VteObject(Gtk.Box):
     def __init__(self):
@@ -36,11 +38,11 @@ class VteObject(Gtk.Box):
         ConfigManager.add_callback(self.update_ui)
 
         self.vte = Vte.Terminal()
-        self.pack_start(self.vte,True,True,0)
+        self.pack_start(self.vte, True, True, 0)
         if ConfigManager.get_conf('show-scrollbar'):
             self.vscroll = Gtk.VScrollbar()
             self.vscroll.set_adjustment(self.vte.get_vadjustment())
-            self.pack_end(self.vscroll,False,True,0)
+            self.pack_end(self.vscroll, False, True, 0)
 
         dir_conf = ConfigManager.get_conf('dir')
         if dir_conf == '$home$':
@@ -51,14 +53,13 @@ class VteObject(Gtk.Box):
             run_dir = dir_conf
 
         self.vte.fork_command_full(
-            Vte.PtyFlags.DEFAULT, 
+            Vte.PtyFlags.DEFAULT,
             run_dir,
             [ConfigManager.get_conf('shell')],
-            [], 
+            [],
             GLib.SpawnFlags.DO_NOT_REAP_CHILD,
             None,
             None)
-        
 
         self.vte.connect('button-release-event', self.on_button_release)
 
@@ -66,11 +67,16 @@ class VteObject(Gtk.Box):
 
     def update_ui(self):
         self.vte.set_background_saturation(ConfigManager.get_conf('transparency') / 100.0)
+
         self.vte.set_opacity(int((100 - ConfigManager.get_conf(('transparency'))) / 100.0 * 65535))
 
-        self.vte.set_colors(Gdk.color_parse(ConfigManager.get_conf('color-text')),Gdk.color_parse(ConfigManager.get_conf('color-background')),[])
+        self.vte.set_colors(
+            Gdk.color_parse(ConfigManager.get_conf('color-text')),
+            Gdk.color_parse(ConfigManager.get_conf('color-background')),
+            [])
 
-        self.vte.set_background_image_file(ConfigManager.get_conf('background-image'))
+        self.vte.set_background_image_file(
+            ConfigManager.get_conf('background-image'))
 
         if not ConfigManager.get_conf('use-default-font'):
             self.vte.set_font_from_string(ConfigManager.get_conf('font-name'))
@@ -116,11 +122,11 @@ class VteObject(Gtk.Box):
             self.menu_quit = Gtk.MenuItem("Quit")
             self.menu_quit.connect("activate", Gtk.main_quit)
             self.menu.append(self.menu_quit)
-            
+
             self.menu.show_all()
-                      
+
             self.menu.popup(None, None, None, None, event.button, event.time)
-    
+
     def open_preferences(self, widget):
         prefs = Preferences()
         prefs.show()
@@ -140,15 +146,14 @@ class VteObject(Gtk.Box):
         top_level = parent.get_parent()
         if type(top_level) == VteObjectContainer:
             top_level.remove(parent)
-            top_level.pack_start(sibling,True,True,0)
+            top_level.pack_start(sibling, True, True, 0)
         else:
             if top_level.get_child1() == parent:
                 top_level.remove(parent)
-                top_level.pack1(sibling,True,True)
+                top_level.pack1(sibling, True, True)
             else:
                 top_level.remove(parent)
-                top_level.pack2(sibling,True,True)                
-
+                top_level.pack2(sibling, True, True)
 
     def split_axis(self, widget, axis='h'):
         parent = self.get_parent()
@@ -167,13 +172,13 @@ class VteObject(Gtk.Box):
             paned = Gtk.VPaned()
             paned.set_property('position', self.get_allocation().height / 2)
         parent.remove(self)
-        paned.pack1(self,True,True) 
-        paned.pack2(VteObject(),True,True)
+        paned.pack1(self, True, True)
+        paned.pack2(VteObject(), True, True)
         paned.show_all()
         if mode == 0:
-            parent.pack_start(paned,True,True,0)
+            parent.pack_start(paned, True, True, 0)
         elif mode == 1:
-            parent.pack1(paned,True,True)
+            parent.pack1(paned, True, True)
         else:
-            parent.pack2(paned,True,True)
+            parent.pack2(paned, True, True)
         parent.show_all()
