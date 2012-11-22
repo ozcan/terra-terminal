@@ -70,8 +70,11 @@ class TerminalWin(Gtk.Window):
         self.buttonbox.pack_start(self.radio_group_leader, False, False, 0)
         self.radio_group_leader.hide()
 
-        self.new_page = self.builder.get_object('new_page_button')
+        self.new_page = self.builder.get_object('btn_new_page')
         self.new_page.connect('clicked', lambda w: self.add_page())
+
+        self.btn_fullscreen = self.builder.get_object('btn_fullscreen')
+        self.btn_fullscreen.connect('clicked', lambda w: self.toggle_fullscreen())
 
         self.connect('destroy', Gtk.main_quit)
         self.connect('key-press-event', self.on_keypress)
@@ -90,7 +93,6 @@ class TerminalWin(Gtk.Window):
         new_button.show()
         new_button.connect('toggled', self.change_page)
         new_button.connect('button-release-event', self.page_button_mouse_event)
-
         self.buttonbox.pack_start(new_button, False, True, 0)
 
     def change_page(self, button):
@@ -219,8 +221,11 @@ class TerminalWin(Gtk.Window):
 
         if ConfigManager.get_conf('allow-fullscreen'):
             if Gdk.keyval_name(event.keyval) == 'F11':
-                self.is_fullscreen = not self.is_fullscreen
-                self.update_ui()
+                self.toggle_fullscreen()
+
+    def toggle_fullscreen(self):
+        self.is_fullscreen = not self.is_fullscreen
+        self.update_ui()
 
     def init_transparency(self):
         self.set_app_paintable(True)
