@@ -44,7 +44,8 @@ class  ConfigManager():
         'use-default-font': 'True',
         'font-name': 'Monospace 10',
         'show-scrollbar': 'True',
-        'losefocus-hiding': 'True'
+        'losefocus-hiding': 'True',
+        'hide-on-start': 'False'
         })
 
     cfg_dir = '/.config/terra/'

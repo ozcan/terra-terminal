@@ -49,6 +49,9 @@ class TerminalWin(Gtk.Window):
         self.update_ui()
         self.add_page()
 
+        if ConfigManager.get_conf('hide-on-start'):
+            self.hide()
+
     def init_ui(self):
         self.set_title('Tambi Terminal Emulator')
         self.is_fullscreen = False
@@ -57,8 +60,7 @@ class TerminalWin(Gtk.Window):
         self.main_container.unparent()
 
         self.logo = self.builder.get_object('logo')
-        self.logo_buffer = GdkPixbuf.Pixbuf.new_from_file_at_size(
-            'ui/terra.svg', 32, 32)
+        self.logo_buffer = GdkPixbuf.Pixbuf.new_from_file_at_size('ui/terra.svg', 32, 32)
         self.logo.set_from_pixbuf(self.logo_buffer)
 
         self.set_icon(self.logo_buffer)
@@ -148,14 +150,21 @@ class TerminalWin(Gtk.Window):
         try:
             self.rename_dialog.btn_cancel.disconnect(self.rename_dialog.btn_cancel_signal)
             self.rename_dialog.btn_ok.disconnect(self.rename_dialog.btn_ok_signal)
+            self.rename_dialog.entry_new_name(self.page_rename_dialog.entry_new_name_signal)
 
             self.rename_dialog.btn_cancel_signal = self.rename_dialog.btn_cancel.connect('clicked', lambda w: self.page_rename_close())
             self.rename_dialog.btn_ok_signal = self.rename_dialog.btn_ok.connect('clicked', lambda w: self.page_rename(sender))
+            self.rename_dialog.entry_new_name_signal = self.rename_dialog.entry_new_name.connect('key-press-event', self.page_rename_keypress, sender)
         except:
             self.rename_dialog.btn_cancel_signal = self.rename_dialog.btn_cancel.connect('clicked', lambda w: self.page_rename_close())
             self.rename_dialog.btn_ok_signal = self.rename_dialog.btn_ok.connect('clicked', lambda w: self.page_rename(sender))
+            self.rename_dialog.entry_new_name_signal = self.rename_dialog.entry_new_name.connect('key-press-event', self.page_rename_keypress, sender)
 
         self.rename_dialog.show_all()
+
+    def page_rename_keypress(self, widget, event, sender):
+        if Gdk.keyval_name(event.keyval) == 'Return':
+            self.page_rename(sender)
 
     def page_rename_close(self):
         self.rename_dialog.hide()
@@ -163,7 +172,8 @@ class TerminalWin(Gtk.Window):
 
     def page_rename(self, button):
         ConfigManager.disable_losefocus_temporary = False
-        button.set_label(self.rename_dialog.entry_new_name.get_text())
+        if len(self.rename_dialog.entry_new_name.get_text()) > 0:
+            button.set_label(self.rename_dialog.entry_new_name.get_text())
         self.rename_dialog.hide()
 
     def page_close(self, menu, sender):

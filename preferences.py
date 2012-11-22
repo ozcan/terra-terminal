@@ -119,6 +119,9 @@ class Preferences():
         self.chk_losefocus = builder.get_object('chk_losefocus')
         self.chk_losefocus.set_active(ConfigManager.get_conf('losefocus-hiding'))
 
+        self.chk_hide_on_start = builder.get_object('chk_hide_on_start')
+        self.chk_hide_on_start.set_active(ConfigManager.get_conf('hide-on-start'))
+
     def show(self):
         self.window.show_all()
 
@@ -165,6 +168,8 @@ class Preferences():
         ConfigManager.set_conf('show-scrollbar', self.chk_show_scrollbar.get_active())
 
         ConfigManager.set_conf('losefocus-hiding', self.chk_losefocus.get_active())
+
+        ConfigManager.set_conf('hide-on-start', self.chk_hide_on_start.get_active())
 
         ConfigManager.save_config()
         ConfigManager.callback()
