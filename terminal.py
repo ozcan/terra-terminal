@@ -58,7 +58,7 @@ class TerminalWin(Gtk.Window):
 
         self.logo = self.builder.get_object('logo')
         self.logo_buffer = GdkPixbuf.Pixbuf.new_from_file_at_size(
-            'terminal.svg', 32, 32)
+            'ui/terra.svg', 32, 32)
         self.logo.set_from_pixbuf(self.logo_buffer)
 
         self.set_icon(self.logo_buffer)
@@ -229,7 +229,10 @@ class TerminalWin(Gtk.Window):
             self.set_visual(visual)
 
     def show_hide(self, arg1, arg2):
-        self.set_visible(not self.get_visible())
+        if self.get_visible():
+            self.hide()
+        else:
+            self.update_ui()
 
 
 def main():

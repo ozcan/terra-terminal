@@ -46,7 +46,7 @@ class  ConfigManager():
         'show-scrollbar': 'True'
         })
 
-    cfg_dir = '/.config/tambi/'
+    cfg_dir = '/.config/terra/'
     cfg_file = 'main.cfg'
     cfg_full_path = os.environ['HOME'] + cfg_dir + cfg_file
 
