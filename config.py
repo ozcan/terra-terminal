@@ -43,7 +43,8 @@ class  ConfigManager():
         'background-image': '',
         'use-default-font': 'True',
         'font-name': 'Monospace 10',
-        'show-scrollbar': 'True'
+        'show-scrollbar': 'True',
+        'losefocus-hiding': 'True'
         })
 
     cfg_dir = '/.config/terra/'
@@ -54,6 +55,8 @@ class  ConfigManager():
     config.read(cfg_full_path)
 
     callback_list = []
+
+    disable_losefocus_temporary = False
 
     @staticmethod
     def get_conf(key):

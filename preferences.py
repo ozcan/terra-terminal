@@ -116,6 +116,9 @@ class Preferences():
         self.chk_show_scrollbar = builder.get_object('chk_show_scrollbar')
         self.chk_show_scrollbar.set_active(ConfigManager.get_conf('show-scrollbar'))
 
+        self.chk_losefocus = builder.get_object('chk_losefocus')
+        self.chk_losefocus.set_active(ConfigManager.get_conf('losefocus-hiding'))
+
     def show(self):
         self.window.show_all()
 
@@ -161,8 +164,12 @@ class Preferences():
 
         ConfigManager.set_conf('show-scrollbar', self.chk_show_scrollbar.get_active())
 
+        ConfigManager.set_conf('losefocus-hiding', self.chk_losefocus.get_active())
+
         ConfigManager.save_config()
         ConfigManager.callback()
+
+        ConfigManager.disable_losefocus_temporary = False
 
     def on_ok_clicked(self, widget):
         self.on_apply_clicked(self.window.btn_ok)
@@ -170,3 +177,4 @@ class Preferences():
 
     def on_cancel_clicked(self, widget):
         self.window.hide()
+        ConfigManager.disable_losefocus_temporary = False

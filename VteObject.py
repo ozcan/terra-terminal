@@ -86,6 +86,7 @@ class VteObject(Gtk.Box):
     def on_button_release(self, widget, event):
         if event.button == 3:
             self.menu = Gtk.Menu()
+            self.menu.connect('deactivate', lambda w: setattr(ConfigManager, 'disable_losefocus_temporary', False))
 
             self.menu_copy = Gtk.MenuItem("Copy")
             self.menu_copy.connect("activate", lambda w: self.vte.copy_clipboard())
@@ -125,9 +126,11 @@ class VteObject(Gtk.Box):
 
             self.menu.show_all()
 
+            ConfigManager.disable_losefocus_temporary = True
             self.menu.popup(None, None, None, None, event.button, event.time)
 
     def open_preferences(self, widget):
+        ConfigManager.disable_losefocus_temporary = True
         prefs = Preferences()
         prefs.show()
 

@@ -78,8 +78,13 @@ class TerminalWin(Gtk.Window):
 
         self.connect('destroy', Gtk.main_quit)
         self.connect('key-press-event', self.on_keypress)
+        self.connect('focus-out-event', self.on_losefocus)
 
         self.add(self.main_container)
+
+    def on_losefocus(self, window, event):
+        if ConfigManager.get_conf('losefocus-hiding') and not ConfigManager.disable_losefocus_temporary:
+            self.hide()
 
     def add_page(self):
         self.notebook.append_page(VteObjectContainer(), None)
@@ -112,9 +117,9 @@ class TerminalWin(Gtk.Window):
             return
 
         self.menu = self.builder.get_object('page_button_menu')
+        self.menu.connect('deactivate', lambda w: setattr(ConfigManager, 'disable_losefocus_temporary', False))
         self.menu_close = self.builder.get_object('menu_close')
         self.menu_rename = self.builder.get_object('menu_rename')
-
         try:
             self.menu_rename.disconnect(self.menu_rename_signal)
             self.menu_close.disconnect(self.menu_close_signal)
@@ -126,9 +131,12 @@ class TerminalWin(Gtk.Window):
             self.menu_rename_signal = self.menu_rename.connect('activate', self.page_rename_dialog, button)
 
         self.menu.show_all()
+
+        ConfigManager.disable_losefocus_temporary = True
         self.menu.popup(None, None, None, None, event.button, event.time)
 
     def page_rename_dialog(self, menu, sender):
+        ConfigManager.disable_losefocus_temporary = True
         self.rename_dialog = self.builder.get_object('rename_dialog')
 
         self.rename_dialog.entry_new_name = self.builder.get_object('entry_new_name')
@@ -141,15 +149,20 @@ class TerminalWin(Gtk.Window):
             self.rename_dialog.btn_cancel.disconnect(self.rename_dialog.btn_cancel_signal)
             self.rename_dialog.btn_ok.disconnect(self.rename_dialog.btn_ok_signal)
 
-            self.rename_dialog.btn_cancel_signal = self.rename_dialog.btn_cancel.connect('clicked', lambda w: self.rename_dialog.hide())
+            self.rename_dialog.btn_cancel_signal = self.rename_dialog.btn_cancel.connect('clicked', lambda w: self.page_rename_close())
             self.rename_dialog.btn_ok_signal = self.rename_dialog.btn_ok.connect('clicked', lambda w: self.page_rename(sender))
         except:
-            self.rename_dialog.btn_cancel_signal = self.rename_dialog.btn_cancel.connect('clicked', lambda w: self.rename_dialog.hide())
+            self.rename_dialog.btn_cancel_signal = self.rename_dialog.btn_cancel.connect('clicked', lambda w: self.page_rename_close())
             self.rename_dialog.btn_ok_signal = self.rename_dialog.btn_ok.connect('clicked', lambda w: self.page_rename(sender))
 
         self.rename_dialog.show_all()
 
+    def page_rename_close(self):
+        self.rename_dialog.hide()
+        ConfigManager.disable_losefocus_temporary = False
+
     def page_rename(self, button):
+        ConfigManager.disable_losefocus_temporary = False
         button.set_label(self.rename_dialog.entry_new_name.get_text())
         self.rename_dialog.hide()
 
