@@ -31,7 +31,6 @@ class VteObjectContainer(Gtk.Box):
         self.pack_start(VteObject(), True, True, 0)
         self.show_all()
 
-
 class VteObject(Gtk.Box):
     def __init__(self):
         super(VteObject, self).__init__()
@@ -39,6 +38,7 @@ class VteObject(Gtk.Box):
 
         self.vte = Vte.Terminal()
         self.pack_start(self.vte, True, True, 0)
+
         if ConfigManager.get_conf('show-scrollbar'):
             self.vscroll = Gtk.VScrollbar()
             self.vscroll.set_adjustment(self.vte.get_vadjustment())
@@ -62,7 +62,6 @@ class VteObject(Gtk.Box):
             None)
 
         self.vte.connect('button-release-event', self.on_button_release)
-
         self.update_ui()
 
     def update_ui(self):

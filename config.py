@@ -17,16 +17,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 """
-
+from gi.repository import Gdk
 import ConfigParser
 import os
 
 
-class  ConfigManager():
+class ConfigManager():
     config = ConfigParser.SafeConfigParser(
         {
         'seperator-size': '2',
-        'close-with-escape': 'True',
         'use-border': 'False',
         'skip-taskbar': 'False',
         'skip-pager': 'False',
@@ -34,7 +33,6 @@ class  ConfigManager():
         'width': '100',
         'horizontal-position': '50',
         'vertical-position': '0',
-        'allow-fullscreen': 'True',
         'color-text': '#ffffffffffff',
         'color-background': '#000000000000',
         'transparency': '50',
@@ -45,7 +43,15 @@ class  ConfigManager():
         'font-name': 'Monospace 10',
         'show-scrollbar': 'True',
         'losefocus-hiding': 'True',
-        'hide-on-start': 'False'
+        'hide-on-start': 'False',
+        'global-key': 'F12',
+        'quit-key': '<Control>q',
+        'fullscreen-key': 'F11',
+        'new-page-key': '<Control>N',
+        'rename-page-key': 'F2',
+        'close-page-key': '<Control>W',
+        'next-page-key': '<Control>Right',
+        'prev-page-key': '<Control>Left'
         })
 
     cfg_dir = '/.config/terra/'
@@ -58,6 +64,8 @@ class  ConfigManager():
     callback_list = []
 
     disable_losefocus_temporary = False
+
+    show_hide_callback = None
 
     @staticmethod
     def get_conf(key):
@@ -114,3 +122,35 @@ class  ConfigManager():
     def callback():
         for method in ConfigManager.callback_list:
             method()
+
+    @staticmethod
+    def key_event_compare(conf_name, event):
+        key_string = ConfigManager.get_conf(conf_name)
+
+        if ((Gdk.ModifierType.CONTROL_MASK & event.state) == Gdk.ModifierType.CONTROL_MASK) != ('<Control>' in key_string):
+            return False
+
+        if ((Gdk.ModifierType.MOD1_MASK & event.state) == Gdk.ModifierType.MOD1_MASK) != ('<Alt>' in key_string):
+            return False
+
+        if ((Gdk.ModifierType.SHIFT_MASK & event.state) == Gdk.ModifierType.SHIFT_MASK) != ('<Shift>' in key_string):
+            return False
+
+        if ((Gdk.ModifierType.SUPER_MASK & event.state) == Gdk.ModifierType.SUPER_MASK) != ('<Super>' in key_string):
+            return False
+
+        key_string = key_string.replace('<Control>', '')
+        key_string = key_string.replace('<Alt>', '')
+        key_string = key_string.replace('<Shift>', '')
+        key_string = key_string.replace('<Super>', '')
+
+        if (key_string.lower() != Gdk.keyval_name(event.keyval).lower()):
+            return False
+
+        return True
+
+
+
+
+
+

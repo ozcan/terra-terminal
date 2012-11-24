@@ -41,6 +41,7 @@ class TerminalWin(Gtk.Window):
         self.builder.add_from_file('ui/main.ui')
 
         ConfigManager.add_callback(self.update_ui)
+        ConfigManager.show_hide_callback = self.show_hide
 
         self.screen = self.get_screen()
 
@@ -78,7 +79,7 @@ class TerminalWin(Gtk.Window):
         self.btn_fullscreen = self.builder.get_object('btn_fullscreen')
         self.btn_fullscreen.connect('clicked', lambda w: self.toggle_fullscreen())
 
-        self.connect('destroy', Gtk.main_quit)
+        self.connect('destroy', lambda w: self.quit())
         self.connect('key-press-event', self.on_keypress)
         self.connect('focus-out-event', self.on_losefocus)
 
@@ -120,61 +121,27 @@ class TerminalWin(Gtk.Window):
 
         self.menu = self.builder.get_object('page_button_menu')
         self.menu.connect('deactivate', lambda w: setattr(ConfigManager, 'disable_losefocus_temporary', False))
+
         self.menu_close = self.builder.get_object('menu_close')
         self.menu_rename = self.builder.get_object('menu_rename')
+
         try:
             self.menu_rename.disconnect(self.menu_rename_signal)
             self.menu_close.disconnect(self.menu_close_signal)
 
             self.menu_close_signal = self.menu_close.connect('activate', self.page_close, button)
-            self.menu_rename_signal = self.menu_rename.connect('activate', self.page_rename_dialog, button)
+            self.menu_rename_signal = self.menu_rename.connect('activate', self.page_rename, button)
         except:
             self.menu_close_signal = self.menu_close.connect('activate', self.page_close, button)
-            self.menu_rename_signal = self.menu_rename.connect('activate', self.page_rename_dialog, button)
+            self.menu_rename_signal = self.menu_rename.connect('activate', self.page_rename, button)
 
         self.menu.show_all()
 
         ConfigManager.disable_losefocus_temporary = True
         self.menu.popup(None, None, None, None, event.button, event.time)
 
-    def page_rename_dialog(self, menu, sender):
-        ConfigManager.disable_losefocus_temporary = True
-        self.rename_dialog = self.builder.get_object('rename_dialog')
-
-        self.rename_dialog.entry_new_name = self.builder.get_object('entry_new_name')
-        self.rename_dialog.entry_new_name.set_text(sender.get_label())
-
-        self.rename_dialog.btn_cancel = self.builder.get_object('btn_cancel')
-        self.rename_dialog.btn_ok = self.builder.get_object('btn_ok')
-
-        try:
-            self.rename_dialog.btn_cancel.disconnect(self.rename_dialog.btn_cancel_signal)
-            self.rename_dialog.btn_ok.disconnect(self.rename_dialog.btn_ok_signal)
-            self.rename_dialog.entry_new_name(self.page_rename_dialog.entry_new_name_signal)
-
-            self.rename_dialog.btn_cancel_signal = self.rename_dialog.btn_cancel.connect('clicked', lambda w: self.page_rename_close())
-            self.rename_dialog.btn_ok_signal = self.rename_dialog.btn_ok.connect('clicked', lambda w: self.page_rename(sender))
-            self.rename_dialog.entry_new_name_signal = self.rename_dialog.entry_new_name.connect('key-press-event', self.page_rename_keypress, sender)
-        except:
-            self.rename_dialog.btn_cancel_signal = self.rename_dialog.btn_cancel.connect('clicked', lambda w: self.page_rename_close())
-            self.rename_dialog.btn_ok_signal = self.rename_dialog.btn_ok.connect('clicked', lambda w: self.page_rename(sender))
-            self.rename_dialog.entry_new_name_signal = self.rename_dialog.entry_new_name.connect('key-press-event', self.page_rename_keypress, sender)
-
-        self.rename_dialog.show_all()
-
-    def page_rename_keypress(self, widget, event, sender):
-        if Gdk.keyval_name(event.keyval) == 'Return':
-            self.page_rename(sender)
-
-    def page_rename_close(self):
-        self.rename_dialog.hide()
-        ConfigManager.disable_losefocus_temporary = False
-
-    def page_rename(self, button):
-        ConfigManager.disable_losefocus_temporary = False
-        if len(self.rename_dialog.entry_new_name.get_text()) > 0:
-            button.set_label(self.rename_dialog.entry_new_name.get_text())
-        self.rename_dialog.hide()
+    def page_rename(self, menu, sender):
+        RenameDialog(sender)
 
     def page_close(self, menu, sender):
         button_count = 0
@@ -238,13 +205,51 @@ class TerminalWin(Gtk.Window):
         self.show()
 
     def on_keypress(self, widget, event):
-        if ConfigManager.get_conf('close-with-escape'):
-            if Gdk.keyval_name(event.keyval) == 'Escape':
-                self.hide()
+        if ConfigManager.key_event_compare('quit-key', event):
+            self.quit()
 
-        if ConfigManager.get_conf('allow-fullscreen'):
-            if Gdk.keyval_name(event.keyval) == 'F11':
-                self.toggle_fullscreen()
+        if ConfigManager.key_event_compare('fullscreen-key', event):
+            self.toggle_fullscreen()
+
+        if ConfigManager.key_event_compare('new-page-key', event):
+            self.add_page()
+
+        if ConfigManager.key_event_compare('rename-page-key', event):
+            for button in self.buttonbox:
+                if button != self.radio_group_leader and button.get_active():
+                    self.page_rename(None, button)
+                    return
+
+        if ConfigManager.key_event_compare('close-page-key', event):
+            for button in self.buttonbox:
+                if button != self.radio_group_leader and button.get_active():
+                    self.page_close(None, button)
+                    return
+
+        if ConfigManager.key_event_compare('next-page-key', event):
+            page_button_list = []
+            for button in self.buttonbox:
+                if button != self.radio_group_leader:
+                    page_button_list.append(button)
+
+            for i in range(len(page_button_list)):
+                if (page_button_list[i].get_active() == True):
+                    if (i + 1 < len(page_button_list)):
+                        page_button_list[i+1].set_active(True)
+                        return
+                    else:
+                        self.add_page()
+
+        if ConfigManager.key_event_compare('prev-page-key', event):
+            page_button_list = []
+            for button in self.buttonbox:
+                if button != self.radio_group_leader:
+                    page_button_list.append(button)
+
+            for i in range(len(page_button_list)):
+                if (page_button_list[i].get_active() == True) and (i > 0):
+                    page_button_list[i-1].set_active(True)
+                    return
 
     def toggle_fullscreen(self):
         self.is_fullscreen = not self.is_fullscreen
@@ -262,14 +267,67 @@ class TerminalWin(Gtk.Window):
         else:
             self.update_ui()
 
+    def quit(self):
+        Gtk.main_quit()
+
+class RenameDialog:
+    def __init__(self, sender):
+        ConfigManager.disable_losefocus_temporary = True
+        self.sender = sender
+
+        self.builder = Gtk.Builder()
+        self.builder.add_from_file('ui/main.ui')
+        self.dialog = self.builder.get_object('rename_dialog')
+
+        self.dialog.entry_new_name = self.builder.get_object('entry_new_name')
+        self.dialog.entry_new_name.set_text(self.sender.get_label())
+
+        self.dialog.btn_cancel = self.builder.get_object('btn_cancel')
+        self.dialog.btn_ok = self.builder.get_object('btn_ok')
+
+        self.dialog.btn_cancel.connect('clicked', lambda w: self.close())
+        self.dialog.btn_ok.connect('clicked', lambda w: self.rename())
+        self.dialog.entry_new_name.connect('key-press-event', lambda w, x: self.on_keypress(w, x))
+
+        self.dialog.connect('delete-event', lambda w, x: self.close())
+        self.dialog.connect('destroy', lambda w: self.close())
+
+        self.dialog.show_all()
+
+    def on_keypress(self, widget, event):
+        if Gdk.keyval_name(event.keyval) == 'Return':
+            self.rename()
+
+    def close(self):
+        ConfigManager.disable_losefocus_temporary = False
+        self.dialog.destroy()
+        del self
+
+    def rename(self):
+        if len(self.dialog.entry_new_name.get_text()) > 0:
+            self.sender.set_label(self.dialog.entry_new_name.get_text())
+
+        self.close()
 
 def main():
     app = TerminalWin()
     if keybinder_available:
         Keybinder.init()
-        Keybinder.bind('F12', app.show_hide, None)
+        bind_success = Keybinder.bind(ConfigManager.get_conf('global-key'), ConfigManager.show_hide_callback, None)
+        if not bind_success:
+            ConfigManager.set_conf('losefocus-hiding', 'False')
+            ConfigManager.set_conf('hide-on-start', 'False')
+            app.update_ui()
+            msgtext = "Another application using '%s'. Please open preferences and change the shortcut key." % ConfigManager.get_conf('global-key')
+            msgbox = Gtk.MessageDialog(app, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
+            msgbox.run()
+            msgbox.destroy()
     else:
         print "[DEBUG] Missing dependencies: libkeybinder3.0, gir1.2-keybinder3.0"
+        ConfigManager.set_conf('losefocus-hiding', 'False')
+        ConfigManager.set_conf('hide-on-start', 'False')
+        ConfigManager
+        app.update_ui()
     Gtk.main()
 
 if __name__ == "__main__":

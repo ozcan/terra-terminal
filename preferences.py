@@ -21,6 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 from gi.repository import Gtk, Gdk
 import os
 
+try:
+    from gi.repository import Keybinder
+    keybinder_available = True
+except:
+    keybinder_available = False
+
 from config import ConfigManager
 
 
@@ -34,7 +40,7 @@ class Preferences():
         builder.add_from_file('ui/preferences.ui')
 
         self.window = builder.get_object('preferences_window')
-
+        self.window.connect('destroy', self.on_cancel_clicked)
         self.window.btn_cancel = builder.get_object('btn_cancel')
         self.window.btn_cancel.connect('clicked', self.on_cancel_clicked)
 
@@ -64,12 +70,6 @@ class Preferences():
 
         self.chk_hide_from_taskbar = builder.get_object('chk_hide_from_taskbar')
         self.chk_hide_from_taskbar.set_active(ConfigManager.get_conf('skip-taskbar'))
-
-        self.chk_close_with_escape = builder.get_object('chk_close_with_escape')
-        self.chk_close_with_escape.set_active(ConfigManager.get_conf('close-with-escape'))
-
-        self.chk_allow_fullscreen = builder.get_object('chk_allow_fullscreen')
-        self.chk_allow_fullscreen.set_active(ConfigManager.get_conf('allow-fullscreen'))
 
         self.chk_use_border = builder.get_object('chk_use_border')
         self.chk_use_border.set_active(ConfigManager.get_conf('use-border'))
@@ -122,6 +122,59 @@ class Preferences():
         self.chk_hide_on_start = builder.get_object('chk_hide_on_start')
         self.chk_hide_on_start.set_active(ConfigManager.get_conf('hide-on-start'))
 
+        self.fullscreen_key = builder.get_object('fullscreen_key')
+        self.fullscreen_key.set_text(ConfigManager.get_conf('fullscreen-key'))
+        self.fullscreen_key.connect('key-press-event', self.generate_key_string)
+
+        self.quit_key = builder.get_object('quit_key')
+        self.quit_key.set_text(ConfigManager.get_conf('quit-key'))
+        self.quit_key.connect('key-press-event', self.generate_key_string)
+
+        self.new_page_key = builder.get_object('new_page_key')
+        self.new_page_key.set_text(ConfigManager.get_conf('new-page-key'))
+        self.new_page_key.connect('key-press-event', self.generate_key_string)
+
+        self.close_page_key = builder.get_object('close_page_key')
+        self.close_page_key.set_text(ConfigManager.get_conf('close-page-key'))
+        self.close_page_key.connect('key-press-event', self.generate_key_string)
+
+        self.rename_page_key = builder.get_object('rename_page_key')
+        self.rename_page_key.set_text(ConfigManager.get_conf('rename-page-key'))
+        self.rename_page_key.connect('key-press-event', self.generate_key_string)
+
+        self.next_page_key = builder.get_object('next_page_key')
+        self.next_page_key.set_text(ConfigManager.get_conf('next-page-key'))
+        self.next_page_key.connect('key-press-event', self.generate_key_string)
+
+        self.prev_page_key = builder.get_object('prev_page_key')
+        self.prev_page_key.set_text(ConfigManager.get_conf('prev-page-key'))
+        self.prev_page_key.connect('key-press-event', self.generate_key_string)
+
+        self.global_key = builder.get_object('global_key')
+        self.global_key.set_text(ConfigManager.get_conf('global-key'))
+        self.global_key.connect('key-press-event', self.generate_key_string)
+        if not keybinder_available:
+            self.global_key.set_sensitive(False)
+
+    def generate_key_string(self, widget, event):
+        key_str = ''
+
+        if ((Gdk.ModifierType.CONTROL_MASK & event.state) == Gdk.ModifierType.CONTROL_MASK):
+            key_str = key_str + '<Control>'
+
+        if ((Gdk.ModifierType.MOD1_MASK & event.state) == Gdk.ModifierType.MOD1_MASK):
+            key_str = key_str + '<Alt>'
+
+        if ((Gdk.ModifierType.SHIFT_MASK & event.state) == Gdk.ModifierType.SHIFT_MASK):
+            key_str = key_str + '<Shift>'
+
+        if ((Gdk.ModifierType.SUPER_MASK & event.state) == Gdk.ModifierType.SUPER_MASK):
+            key_str = key_str + '<Super>'
+
+        key_str = key_str + Gdk.keyval_name(event.keyval)
+
+        widget.set_text(key_str)
+
     def show(self):
         self.window.show_all()
 
@@ -139,10 +192,6 @@ class Preferences():
         ConfigManager.set_conf('horizontal-position', self.h_alig.get_active() * 50)
 
         ConfigManager.set_conf('skip-taskbar', self.chk_hide_from_taskbar.get_active())
-
-        ConfigManager.set_conf('close-with-escape', self.chk_close_with_escape.get_active())
-
-        ConfigManager.set_conf('allow-fullscreen', self.chk_allow_fullscreen.get_active())
 
         ConfigManager.set_conf('use-border', self.chk_use_border.get_active())
 
@@ -170,6 +219,31 @@ class Preferences():
         ConfigManager.set_conf('losefocus-hiding', self.chk_losefocus.get_active())
 
         ConfigManager.set_conf('hide-on-start', self.chk_hide_on_start.get_active())
+
+        ConfigManager.set_conf('fullscreen-key', self.fullscreen_key.get_text())
+
+        ConfigManager.set_conf('quit-key', self.quit_key.get_text())
+
+        ConfigManager.set_conf('new-page-key', self.new_page_key.get_text())
+
+        ConfigManager.set_conf('close-page-key', self.close_page_key.get_text())
+
+        ConfigManager.set_conf('rename-page-key', self.rename_page_key.get_text())
+
+        ConfigManager.set_conf('next-page-key', self.next_page_key.get_text())
+
+        ConfigManager.set_conf('prev-page-key', self.prev_page_key.get_text())
+
+        if keybinder_available:
+            Keybinder.init()
+            Keybinder.unbind(ConfigManager.get_conf('global-key'))
+            bind_success = Keybinder.bind(self.global_key.get_text(), ConfigManager.show_hide_callback, None)
+            if not bind_success:
+                msgtext = "Another application using '%s'. Please open preferences and change the shortcut key." % self.global_key.get_text()
+                msgbox = Gtk.MessageDialog(self.window, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
+                msgbox.run()
+                msgbox.destroy()
+            ConfigManager.set_conf('global-key', self.global_key.get_text())
 
         ConfigManager.save_config()
         ConfigManager.callback()
