@@ -23,6 +23,8 @@ import os
 
 
 class ConfigManager():
+    version = '0.1dev'
+
     config = ConfigParser.SafeConfigParser(
         {
         'seperator-size': '2',

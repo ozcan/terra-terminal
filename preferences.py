@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 """
 
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, GdkPixbuf
 import os
 
 try:
@@ -41,6 +41,14 @@ class Preferences():
 
         self.window = builder.get_object('preferences_window')
         self.window.connect('destroy', self.on_cancel_clicked)
+
+        self.logo = builder.get_object('terra_logo')
+        self.logo_buffer = GdkPixbuf.Pixbuf.new_from_file_at_size('ui/terra.svg', 64, 64)
+        self.logo.set_from_pixbuf(self.logo_buffer)
+
+        self.version = builder.get_object('version')
+        self.version.set_label('Version: ' + ConfigManager.version)
+
         self.window.btn_cancel = builder.get_object('btn_cancel')
         self.window.btn_cancel.connect('clicked', self.on_cancel_clicked)
 
