@@ -21,9 +21,10 @@ from gi.repository import Gdk
 import ConfigParser
 import os
 
+__terra_data_directory__ = '/home/coyote/terra/data/'
+__version__ = '0.1'
 
 class ConfigManager():
-    version = '0.1dev'
 
     config = ConfigParser.SafeConfigParser(
         {
@@ -68,6 +69,10 @@ class ConfigManager():
     disable_losefocus_temporary = False
 
     show_hide_callback = None
+
+    data_dir = __terra_data_directory__
+
+    version = __version__
 
     @staticmethod
     def get_conf(key):

@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 from gi.repository import Gtk, Vte, GLib, Gdk
 import os
 
-from preferences import Preferences
-from config import ConfigManager
+from terra.preferences import Preferences
+from terra.config import ConfigManager
 
 
 class VteObjectContainer(Gtk.Box):

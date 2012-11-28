@@ -2,6 +2,8 @@
 *.so
 *.egg
 *.egg-info
+.bzr
+.bzrignore
 dist
 build
 eggs

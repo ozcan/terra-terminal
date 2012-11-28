@@ -26,11 +26,10 @@ try:
 except:
     keybinder_available = False
 
-from VteObject import VteObject, VteObjectContainer
-from config import ConfigManager
+from terra.VteObject import VteObjectContainer
+from terra.config import ConfigManager
 
 import os
-
 
 class TerminalWin(Gtk.Window):
 
@@ -38,7 +37,7 @@ class TerminalWin(Gtk.Window):
         super(TerminalWin, self).__init__()
 
         self.builder = Gtk.Builder()
-        self.builder.add_from_file('ui/main.ui')
+        self.builder.add_from_file(ConfigManager.data_dir + 'ui/main.ui')
 
         ConfigManager.add_callback(self.update_ui)
         ConfigManager.show_hide_callback = self.show_hide
@@ -61,7 +60,7 @@ class TerminalWin(Gtk.Window):
         self.main_container.unparent()
 
         self.logo = self.builder.get_object('logo')
-        self.logo_buffer = GdkPixbuf.Pixbuf.new_from_file_at_size('ui/terra.svg', 32, 32)
+        self.logo_buffer = GdkPixbuf.Pixbuf.new_from_file_at_size(ConfigManager.data_dir  + 'image/terra.svg', 32, 32)
         self.logo.set_from_pixbuf(self.logo_buffer)
 
         self.set_icon(self.logo_buffer)
@@ -276,7 +275,7 @@ class RenameDialog:
         self.sender = sender
 
         self.builder = Gtk.Builder()
-        self.builder.add_from_file('ui/main.ui')
+        self.builder.add_from_file(ConfigManager.data_dir + 'ui/main.ui')
         self.dialog = self.builder.get_object('rename_dialog')
 
         self.dialog.entry_new_name = self.builder.get_object('entry_new_name')

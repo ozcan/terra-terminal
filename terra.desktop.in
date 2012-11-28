@@ -1,0 +1,8 @@
+[Desktop Entry]
+_Name=Terra Terminal Emulator
+_Comment=Terra Terminal Emulator
+Categories=GNOME;Utility;
+Exec=terra
+Icon=/usr/share/terra/image/terra.svg
+Terminal=false
+Type=Application

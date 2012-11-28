@@ -1,0 +1,4 @@
+project = terra
+version = 12.04
+template = ubuntu-application
+ppa = terra-terminal

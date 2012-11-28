@@ -27,7 +27,7 @@ try:
 except:
     keybinder_available = False
 
-from config import ConfigManager
+from terra.config import ConfigManager
 
 
 class Preferences():
@@ -37,13 +37,13 @@ class Preferences():
 
     def init_ui(self):
         builder = Gtk.Builder()
-        builder.add_from_file('ui/preferences.ui')
+        builder.add_from_file(ConfigManager.data_dir + 'ui/preferences.ui')
 
         self.window = builder.get_object('preferences_window')
         self.window.connect('destroy', self.on_cancel_clicked)
 
         self.logo = builder.get_object('terra_logo')
-        self.logo_buffer = GdkPixbuf.Pixbuf.new_from_file_at_size('ui/terra.svg', 64, 64)
+        self.logo_buffer = GdkPixbuf.Pixbuf.new_from_file_at_size(ConfigManager.data_dir + 'image/terra.svg', 64, 64)
         self.logo.set_from_pixbuf(self.logo_buffer)
 
         self.version = builder.get_object('version')
