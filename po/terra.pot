@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-11-28 16:23+0200\n"
+"POT-Creation-Date: 2012-11-30 00:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,11 +29,11 @@ msgstr ""
 msgid "Rename Page"
 msgstr ""
 
-#: ../data/ui/main.ui.h:4 ../data/ui/preferences.ui.h:44
+#: ../data/ui/main.ui.h:4 ../data/ui/preferences.ui.h:45
 msgid "Ok"
 msgstr ""
 
-#: ../data/ui/main.ui.h:5 ../data/ui/preferences.ui.h:45
+#: ../data/ui/main.ui.h:5 ../data/ui/preferences.ui.h:46
 msgid "Cancel"
 msgstr ""
 
@@ -74,145 +74,149 @@ msgid "Hide on start:"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:9
-msgid "General"
+msgid "Run on Startup:"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:10
-msgid "Vertical Aligment: "
+msgid "General"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:11
-msgid "Top"
+msgid "Vertical Aligment: "
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:12
-msgid "Center"
+msgid "Top"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:13
-msgid "Bottom"
+msgid "Center"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:14
-msgid "Horizontal Aligment:"
+msgid "Bottom"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:15
-msgid "Left"
+msgid "Horizontal Aligment:"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:16
-msgid "Right"
+msgid "Left"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:17
-msgid "Height (percent): "
+msgid "Right"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:18
-msgid "Width (percent): "
+msgid "Height (percent): "
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:19
-msgid "Show window border: "
+msgid "Width (percent): "
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:20
-msgid "Hide on lose focus: "
+msgid "Show window border: "
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:21
-msgid "Window"
+msgid "Hide on lose focus: "
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:22
-msgid "Text color:"
+msgid "Window"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:23
-msgid "Background color:"
+msgid "Text color:"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:24
-msgid "Background Image: "
+msgid "Background color:"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:25
-msgid "Background transparency:"
+msgid "Background Image: "
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:26
-msgid "Font :"
+msgid "Background transparency:"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:27
-msgid "Use default system font"
+msgid "Font :"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:28
-msgid "Show scrollbar: "
+msgid "Use default system font"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:29
-msgid "Terminal"
+msgid "Show scrollbar: "
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:30
-msgid "Toggle fullscreen:"
+msgid "Terminal"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:31
-msgid "Quit: "
+msgid "Toggle fullscreen:"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:32
-msgid "New page:"
+msgid "Quit: "
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:33
-msgid "Rename page:"
+msgid "New page:"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:34
-msgid "Close page:"
+msgid "Rename page:"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:35
-msgid "Go to next page:"
+msgid "Close page:"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:36
-msgid "Go to previous page:"
+msgid "Go to next page:"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:37
-msgid "Toggle Terra visibility:"
+msgid "Go to previous page:"
 msgstr ""
 
 #: ../data/ui/preferences.ui.h:38
+msgid "Toggle Terra visibility:"
+msgstr ""
+
+#: ../data/ui/preferences.ui.h:39
 msgid "Keyboard Shortcuts"
 msgstr ""
 
-#: ../data/ui/preferences.ui.h:39 ../terra.desktop.in.h:1
+#: ../data/ui/preferences.ui.h:40 ../terra.desktop.in.h:1
 msgid "Terra Terminal Emulator"
 msgstr ""
 
-#: ../data/ui/preferences.ui.h:40
+#: ../data/ui/preferences.ui.h:41
 msgid "Version: 0.1dev"
 msgstr ""
 
-#: ../data/ui/preferences.ui.h:41
+#: ../data/ui/preferences.ui.h:42
 msgid "License: GPL"
 msgstr ""
 
-#: ../data/ui/preferences.ui.h:42
+#: ../data/ui/preferences.ui.h:43
 msgid "Author: Özcan ESEN <ozcanesen@gmail.com>"
 msgstr ""
 
-#: ../data/ui/preferences.ui.h:43
+#: ../data/ui/preferences.ui.h:44
 msgid "About"
 msgstr ""
 
-#: ../data/ui/preferences.ui.h:46
+#: ../data/ui/preferences.ui.h:47
 msgid "Apply"
 msgstr ""

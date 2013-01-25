@@ -18,21 +18,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 """
 
-from gi.repository import Gtk, Gdk, GdkPixbuf
+from gi.repository import Gtk, Gdk, GdkPixbuf, GObject
+from config import ConfigManager
 import os
-
-try:
-    from gi.repository import Keybinder
-    keybinder_available = True
-except:
-    keybinder_available = False
-
-from terra.config import ConfigManager
-
 
 class Preferences():
 
     def __init__(self):
+        
         self.init_ui()
 
     def init_ui(self):
@@ -49,26 +42,26 @@ class Preferences():
         self.version = builder.get_object('version')
         self.version.set_label('Version: ' + ConfigManager.version)
 
-        self.window.btn_cancel = builder.get_object('btn_cancel')
-        self.window.btn_cancel.connect('clicked', self.on_cancel_clicked)
+        self.btn_cancel = builder.get_object('btn_cancel')
+        self.btn_cancel.connect('clicked', self.on_cancel_clicked)
 
-        self.window.btn_apply = builder.get_object('btn_apply')
-        self.window.btn_apply.connect('clicked', self.on_apply_clicked)
+        self.btn_apply = builder.get_object('btn_apply')
+        self.btn_apply.connect('clicked', self.on_apply_clicked)
 
-        self.window.btn_ok = builder.get_object('btn_ok')
-        self.window.btn_ok.connect('clicked', self.on_ok_clicked)
+        self.btn_ok = builder.get_object('btn_ok')
+        self.btn_ok.connect('clicked', self.on_ok_clicked)
 
-        self.window.adj_seperator = builder.get_object('adjustment_seperator')
-        self.window.adj_seperator.set_value(int(ConfigManager.get_conf('seperator-size')) * 1.0)
+        self.adj_seperator = builder.get_object('adjustment_seperator')
+        self.adj_seperator.set_value(int(ConfigManager.get_conf('seperator-size')) * 1.0)
 
-        self.window.adj_width = builder.get_object('adjustment_width')
-        self.window.adj_width.set_value(int(ConfigManager.get_conf('width')) * 1.0)
+        self.adj_width = builder.get_object('adjustment_width')
+        self.adj_width.set_value(int(ConfigManager.get_conf('width')) * 1.0)
 
-        self.window.adj_height = builder.get_object('adjustment_height')
-        self.window.adj_height.set_value(int(ConfigManager.get_conf('height')) * 1.0)
+        self.adj_height = builder.get_object('adjustment_height')
+        self.adj_height.set_value(int(ConfigManager.get_conf('height')) * 1.0)
 
-        self.window.adj_transparency = builder.get_object('adjustment_transparency')
-        self.window.adj_transparency.set_value(int(ConfigManager.get_conf('transparency')) * 1.0)
+        self.adj_transparency = builder.get_object('adjustment_transparency')
+        self.adj_transparency.set_value(int(ConfigManager.get_conf('transparency')) * 1.0)
 
         self.v_alig = builder.get_object('v_alig')
         self.v_alig.set_active(int(ConfigManager.get_conf('vertical-position')) / 50)
@@ -161,8 +154,17 @@ class Preferences():
         self.global_key = builder.get_object('global_key')
         self.global_key.set_text(ConfigManager.get_conf('global-key'))
         self.global_key.connect('key-press-event', self.generate_key_string)
-        if not keybinder_available:
-            self.global_key.set_sensitive(False)
+
+        self.chk_run_on_startup = builder.get_object('chk_run_on_startup')
+        self.chk_run_on_startup.set_active(os.path.exists(os.environ['HOME'] + '/.config/autostart/terra.desktop'))
+
+        self.open_project_homepage = builder.get_object('open_project_homepage')
+        self.open_project_homepage.connect('clicked', lambda w: os.system('xdg-open https://launchpad.net/terra'))
+
+        self.report_bug = builder.get_object('report_bug')
+        self.report_bug.connect('clicked', lambda w: os.system('xdg-open https://bugs.launchpad.net/terra/+filebug'))
+
+
 
     def generate_key_string(self, widget, event):
         key_str = ''
@@ -187,13 +189,13 @@ class Preferences():
         self.window.show_all()
 
     def on_apply_clicked(self, widget):
-        ConfigManager.set_conf('seperator-size', int(self.window.adj_seperator.get_value()))
+        ConfigManager.set_conf('seperator-size', int(self.adj_seperator.get_value()))
 
-        ConfigManager.set_conf('width', int(self.window.adj_width.get_value()))
+        ConfigManager.set_conf('width', int(self.adj_width.get_value()))
 
-        ConfigManager.set_conf('height', int(self.window.adj_height.get_value()))
+        ConfigManager.set_conf('height', int(self.adj_height.get_value()))
 
-        ConfigManager.set_conf('transparency', int(self.window.adj_transparency.get_value()))
+        ConfigManager.set_conf('transparency', int(self.adj_transparency.get_value()))
 
         ConfigManager.set_conf('vertical-position', self.v_alig.get_active() * 50)
 
@@ -242,25 +244,25 @@ class Preferences():
 
         ConfigManager.set_conf('prev-page-key', self.prev_page_key.get_text())
 
-        if keybinder_available:
-            Keybinder.init()
-            Keybinder.unbind(ConfigManager.get_conf('global-key'))
-            bind_success = Keybinder.bind(self.global_key.get_text(), ConfigManager.show_hide_callback, None)
-            if not bind_success:
-                msgtext = "Another application using '%s'. Please open preferences and change the shortcut key." % self.global_key.get_text()
-                msgbox = Gtk.MessageDialog(self.window, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
-                msgbox.run()
-                msgbox.destroy()
-            ConfigManager.set_conf('global-key', self.global_key.get_text())
+        ConfigManager.set_conf('global-key', self.global_key.get_text())
+
+        Gdk.threads_enter()
+        GObject.idle_add(ConfigManager.ref_keybinding.regrab)
+        Gdk.threads_leave()
+
+        if (self.chk_run_on_startup.get_active() and not os.path.exists(os.environ['HOME'] + '/.config/autostart/terra.desktop')):
+            os.system('cp /usr/share/applications/terra.desktop ' + os.environ['HOME'] + '/.config/autostart/terra.desktop')
+
+        if (not self.chk_run_on_startup.get_active() and os.path.exists(os.environ['HOME'] + '/.config/autostart/terra.desktop')):
+            os.system('rm -f ' + os.environ['HOME'] + '/.config/autostart/terra.desktop')
 
         ConfigManager.save_config()
         ConfigManager.callback()
 
-        ConfigManager.disable_losefocus_temporary = False
-
     def on_ok_clicked(self, widget):
-        self.on_apply_clicked(self.window.btn_ok)
+        self.on_apply_clicked(self.btn_ok)
         self.window.hide()
+        ConfigManager.disable_losefocus_temporary = False
 
     def on_cancel_clicked(self, widget):
         self.window.hide()

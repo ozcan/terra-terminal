@@ -1,0 +1,119 @@
+# -*- coding: utf-8; -*-
+# Copyright (C) 2013  Özcan Esen <ozcanesen@gmail.com>
+# Copyright (C) 2008  Luca Bruno <lethalman88@gmail.com>
+#
+# This a slightly modified version of the globalkeybinding.py file which is part of FreeSpeak.
+#   
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell   
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#   
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#   
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,  
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER    
+# DEALINGS IN THE SOFTWARE.
+
+from Xlib.display import Display
+from Xlib import X, error
+#import GObject
+#import gtk.gdk
+from gi.repository import Gtk, Gdk, GObject
+import threading
+from config import ConfigManager
+
+class GlobalKeyBinding(GObject.GObject, threading.Thread):
+    __gsignals__ = {
+        'activate':(GObject.SIGNAL_RUN_LAST, None,()),
+        }
+
+    def __init__(self):
+        GObject.GObject.__init__(self)
+        threading.Thread.__init__(self)
+        self.setDaemon(True)
+        
+        self.keymap = Gdk.Keymap.get_default()
+        self.display = Display()
+        self.screen = self.display.screen()
+        self.root = self.screen.root
+        self.map_modifiers()
+
+    def map_modifiers(self):
+        gdk_modifiers =(Gdk.ModifierType.CONTROL_MASK, Gdk.ModifierType.SHIFT_MASK, Gdk.ModifierType.MOD1_MASK,
+                         Gdk.ModifierType.MOD2_MASK, Gdk.ModifierType.MOD3_MASK, Gdk.ModifierType.MOD4_MASK, Gdk.ModifierType.MOD5_MASK,
+                         Gdk.ModifierType.SUPER_MASK, Gdk.ModifierType.HYPER_MASK)
+        self.known_modifiers_mask = 0
+        for modifier in gdk_modifiers:
+            # Do you know how to handle unknown "Mod*" keys?
+            # They are usually Locks and something like that
+            if "Mod" not in Gtk.accelerator_name(0, modifier):
+                self.known_modifiers_mask |= modifier
+
+    def grab(self):
+        Gdk.threads_enter()
+        accelerator = ConfigManager.get_conf('global-key')
+        Gdk.threads_leave()
+        keyval, modifiers = Gtk.accelerator_parse(accelerator)
+        if not accelerator or(not keyval and not modifiers):
+            self.keycode = None
+            self.modifiers = None
+            return
+
+        self.keycode= self.keymap.get_entries_for_keyval(keyval)[1][0].keycode
+        self.modifiers = int(modifiers)
+
+        catch = error.CatchError(error.BadAccess)
+        self.root.grab_key(self.keycode, X.AnyModifier, True, X.GrabModeAsync, X.GrabModeSync,onerror=catch)
+        self.display.sync()
+        if catch.get_error():
+            return False
+        return True
+
+    def regrab(self):
+        self.ungrab()
+        self.grab()
+        return False
+
+    def ungrab(self):
+        if self.keycode:
+            self.root.ungrab_key(self.keycode, X.AnyModifier, self.root)
+        
+    def idle(self):
+        # Clipboard requests will hang without locking the GDK thread
+        Gdk.threads_enter()
+        self.emit("activate")
+        Gdk.threads_leave()
+        return False
+
+    def run(self):
+        self.running = True
+        wait_for_release = False
+        while self.running:
+            event = self.display.next_event()
+            if event.detail == self.keycode and event.type == X.KeyPress and not wait_for_release:
+                modifiers = event.state & self.known_modifiers_mask
+                if modifiers == self.modifiers:
+                    wait_for_release = True
+                    self.display.allow_events(X.AsyncKeyboard, event.time)
+                else:
+                    self.display.allow_events(X.ReplayKeyboard, event.time)
+            elif event.detail == self.keycode and wait_for_release:
+                if event.type == X.KeyRelease:
+                    wait_for_release = False
+                    GObject.idle_add(self.idle)
+                self.display.allow_events(X.AsyncKeyboard, event.time)
+            else:
+                self.display.allow_events(X.ReplayKeyboard, event.time)
+
+    def stop(self):
+        self.running = False
+        self.ungrab()
+        self.display.close()

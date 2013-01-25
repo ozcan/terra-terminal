@@ -14,10 +14,10 @@ Depends: ${misc:Depends},
  ${python:Depends},
  gir1.2-glib-2.0,
  gir1.2-gtk-3.0,
- gir1.2-keybinder-3.0,
+ python-xlib,
  gir1.2-vte-2.90,
  gir1.2-gdkpixbuf-2.0
-Description: Dropdown terminal emulator.
+Description: Terra Terminal Emulator
  Terra is GTK+3.0 based terminal emulator with useful user interface, it
  also supports multiple terminals with splitting screen horizontally or
  vertically. New features will be added soon. It's very new and
