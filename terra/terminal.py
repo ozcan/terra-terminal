@@ -18,16 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 """
 
-from gi.repository import Gtk, Vte, GLib, Gdk, GdkPixbuf
+from gi.repository import Gtk, Vte, GLib, Gdk, GdkPixbuf, GObject
+from globalkeybinding import GlobalKeyBinding
 
-try:
-    from gi.repository import Keybinder
-    keybinder_available = True
-except:
-    keybinder_available = False
-
-from terra.VteObject import VteObjectContainer
-from terra.config import ConfigManager
+from VteObject import VteObjectContainer
+from config import ConfigManager
 
 import os
 
@@ -53,11 +48,13 @@ class TerminalWin(Gtk.Window):
             self.hide()
 
     def init_ui(self):
-        self.set_title('Tambi Terminal Emulator')
+        self.set_title('Terra Terminal Emulator')
         self.is_fullscreen = False
 
-        self.main_container = self.builder.get_object('main_container')
-        self.main_container.unparent()
+        self.resizer = self.builder.get_object('resizer')
+        self.resizer.unparent()
+        self.resizer.connect('motion-notify-event', self.on_resize)
+        self.resizer.connect('button-release-event', self.update_resizer)
 
         self.logo = self.builder.get_object('logo')
         self.logo_buffer = GdkPixbuf.Pixbuf.new_from_file_at_size(ConfigManager.data_dir  + 'image/terra.svg', 32, 32)
@@ -67,10 +64,11 @@ class TerminalWin(Gtk.Window):
 
         self.notebook = self.builder.get_object('notebook')
         self.notebook_page_counter = 0
+        self.notebook.set_name('notebook')
         self.buttonbox = self.builder.get_object('buttonbox')
         self.radio_group_leader = Gtk.RadioButton()
         self.buttonbox.pack_start(self.radio_group_leader, False, False, 0)
-        self.radio_group_leader.hide()
+        self.radio_group_leader.set_no_show_all(True)
 
         self.new_page = self.builder.get_object('btn_new_page')
         self.new_page.connect('clicked', lambda w: self.add_page())
@@ -82,7 +80,24 @@ class TerminalWin(Gtk.Window):
         self.connect('key-press-event', self.on_keypress)
         self.connect('focus-out-event', self.on_losefocus)
 
-        self.add(self.main_container)
+        self.add(self.resizer)
+
+    def on_resize(self, widget, event):
+        if Gdk.ModifierType.BUTTON1_MASK & event.get_state() != 0:
+            mouse_y = event.device.get_position()[2]
+            new_height = mouse_y - self.get_position()[1]
+            if new_height > 0:
+                self.resize(self.get_allocation().width, new_height)
+                self.show()
+
+    def update_resizer(self, widget, event):
+        self.resizer.set_position(self.get_allocation().height)
+
+        if not self.is_fullscreen:
+            new_percent = int((self.get_allocation().height * 1.0) / self.screen.get_height() * 100.0)
+            ConfigManager.set_conf('height', str(new_percent))
+            ConfigManager.save_config()
+
 
     def on_losefocus(self, window, event):
         if ConfigManager.get_conf('losefocus-hiding') and not ConfigManager.disable_losefocus_temporary:
@@ -169,7 +184,7 @@ class TerminalWin(Gtk.Window):
         self.set_skip_taskbar_hint(ConfigManager.get_conf('skip-taskbar'))
 
         css_provider = Gtk.CssProvider()
-        css_provider.load_from_data('''*{-GtkPaned-handle-size: %i;}''' % (ConfigManager.get_conf('seperator-size')))
+        css_provider.load_from_data('''#notebook GtkPaned {-GtkPaned-handle-size: %i;}''' % (ConfigManager.get_conf('seperator-size')))
         style_context = Gtk.StyleContext()
         style_context.add_provider_for_screen(self.screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
@@ -200,30 +215,32 @@ class TerminalWin(Gtk.Window):
             horizontal_position = horizontal_position - (width / 2)
 
         self.move(horizontal_position, vertical_position)
-
-        self.show()
+        self.show_all()
 
     def on_keypress(self, widget, event):
         if ConfigManager.key_event_compare('quit-key', event):
             self.quit()
+            return True
 
         if ConfigManager.key_event_compare('fullscreen-key', event):
             self.toggle_fullscreen()
+            return True
 
         if ConfigManager.key_event_compare('new-page-key', event):
             self.add_page()
+            return True
 
         if ConfigManager.key_event_compare('rename-page-key', event):
             for button in self.buttonbox:
                 if button != self.radio_group_leader and button.get_active():
                     self.page_rename(None, button)
-                    return
+                    return True
 
         if ConfigManager.key_event_compare('close-page-key', event):
             for button in self.buttonbox:
                 if button != self.radio_group_leader and button.get_active():
                     self.page_close(None, button)
-                    return
+                    return True
 
         if ConfigManager.key_event_compare('next-page-key', event):
             page_button_list = []
@@ -235,9 +252,10 @@ class TerminalWin(Gtk.Window):
                 if (page_button_list[i].get_active() == True):
                     if (i + 1 < len(page_button_list)):
                         page_button_list[i+1].set_active(True)
-                        return
                     else:
-                        self.add_page()
+                        page_button_list[0].set_active(True)
+                    return True
+
 
         if ConfigManager.key_event_compare('prev-page-key', event):
             page_button_list = []
@@ -246,9 +264,12 @@ class TerminalWin(Gtk.Window):
                     page_button_list.append(button)
 
             for i in range(len(page_button_list)):
-                if (page_button_list[i].get_active() == True) and (i > 0):
-                    page_button_list[i-1].set_active(True)
-                    return
+                if page_button_list[i].get_active():
+                    if i > 0:
+                        page_button_list[i-1].set_active(True)
+                    else:
+                        page_button_list[-1].set_active(True)
+                    return True
 
     def toggle_fullscreen(self):
         self.is_fullscreen = not self.is_fullscreen
@@ -260,7 +281,7 @@ class TerminalWin(Gtk.Window):
         if visual != None and self.screen.is_composited():
             self.set_visual(visual)
 
-    def show_hide(self, arg1, arg2):
+    def show_hide(self):
         if self.get_visible():
             self.hide()
         else:
@@ -309,24 +330,23 @@ class RenameDialog:
         self.close()
 
 def main():
+    GObject.threads_init()
     app = TerminalWin()
-    if keybinder_available:
-        Keybinder.init()
-        bind_success = Keybinder.bind(ConfigManager.get_conf('global-key'), ConfigManager.show_hide_callback, None)
-        if not bind_success:
-            ConfigManager.set_conf('losefocus-hiding', 'False')
-            ConfigManager.set_conf('hide-on-start', 'False')
-            app.update_ui()
-            msgtext = "Another application using '%s'. Please open preferences and change the shortcut key." % ConfigManager.get_conf('global-key')
-            msgbox = Gtk.MessageDialog(app, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
-            msgbox.run()
-            msgbox.destroy()
-    else:
-        print "[DEBUG] Missing dependencies: libkeybinder3.0, gir1.2-keybinder3.0"
+
+    keybinding = GlobalKeyBinding()
+    ConfigManager.ref_keybinding = keybinding
+    ConfigManager.ref_show_hide = app.show_hide
+    keybinding.connect('activate', lambda w: app.show_hide())
+    if not keybinding.grab():
         ConfigManager.set_conf('losefocus-hiding', 'False')
         ConfigManager.set_conf('hide-on-start', 'False')
-        ConfigManager
         app.update_ui()
+        msgtext = "Another application using '%s'. Please open preferences and change the shortcut key." % ConfigManager.get_conf('global-key')
+        msgbox = Gtk.MessageDialog(app, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING, Gtk.ButtonsType.OK, msgtext)
+        msgbox.run()
+        msgbox.destroy()
+    else:
+        keybinding.start()
     Gtk.main()
 
 if __name__ == "__main__":

@@ -1,8 +1,26 @@
-terra (0.1-public4) precise; urgency=low
+terra (0.1.2) precise; urgency=low
+
+  * New release.
+  * Changed about page
+  * Added resizer to main window
+  * Small bugfixes
+
+ -- Özcan ESEN <ozcanesen@gmail.com>  Sat, 01 Dec 2012 01:54:00 +0200
+
+terra (0.1.1-public1) precise; urgency=low
 
   * New release.
 
- -- Özcan ESEN <ozcanesen@gmail.com>  Wed, 28 Nov 2012 16:26:57 +0200
+ -- Özcan ESEN <ozcanesen@gmail.com>  Fri, 30 Nov 2012 00:39:00 +0200
+
+terra (0.1-public4) precise; urgency=low
+
+  [ Özcan ESEN ]
+  * New release.
+
+  [ coyote ]
+
+ -- coyote <coyote@coyote-laptop>  Fri, 30 Nov 2012 00:38:37 +0200
 
 terra (0.1-public3) precise; urgency=low
 

@@ -21,7 +21,7 @@ from gi.repository import Gdk
 import ConfigParser
 import os
 
-__terra_data_directory__ = '/home/coyote/terra/data/'
+__terra_data_directory__ = '../data/'
 __version__ = '0.1'
 
 class ConfigManager():
@@ -66,9 +66,10 @@ class ConfigManager():
 
     callback_list = []
 
-    disable_losefocus_temporary = False
+    ref_keybinding = None
+    ref_show_hide = None
 
-    show_hide_callback = None
+    disable_losefocus_temporary = False
 
     data_dir = __terra_data_directory__
 
