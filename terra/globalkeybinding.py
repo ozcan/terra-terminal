@@ -76,18 +76,12 @@ class GlobalKeyBinding(GObject.GObject, threading.Thread):
         if catch.get_error():
             return False
         return True
-
-    def regrab(self):
-        self.ungrab()
-        self.grab()
-        return False
-
+        
     def ungrab(self):
         if self.keycode:
             self.root.ungrab_key(self.keycode, X.AnyModifier, self.root)
         
     def idle(self):
-        # Clipboard requests will hang without locking the GDK thread
         Gdk.threads_enter()
         self.emit("activate")
         Gdk.threads_leave()
