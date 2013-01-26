@@ -54,7 +54,13 @@ class ConfigManager():
         'rename-page-key': 'F2',
         'close-page-key': '<Control>W',
         'next-page-key': '<Control>Right',
-        'prev-page-key': '<Control>Left'
+        'prev-page-key': '<Control>Left',
+        'select-all-key': '<Control>A',
+        'copy-key': '<Control><Shift>C',
+        'paste-key': '<Control><Shift>V',
+        'split-v-key': '<Control><Shift>J',
+        'split-h-key': '<Control><Shift>H',
+        'close-node-key': '<Control><Shift>K'
         })
 
     cfg_dir = '/.config/terra/'

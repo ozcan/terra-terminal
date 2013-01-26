@@ -223,7 +223,31 @@ class TerminalWin(Gtk.Window):
 
     def on_keypress(self, widget, event):
         if ConfigManager.key_event_compare('quit-key', event):
-            self.quit()
+            Gtk.main_quit()
+            return True
+
+        if ConfigManager.key_event_compare('select-all-key', event):
+            self.notebook.get_nth_page(self.notebook.get_current_page()).active_terminal.vte.select_all()
+            return True
+
+        if ConfigManager.key_event_compare('copy-key', event):
+            self.notebook.get_nth_page(self.notebook.get_current_page()).active_terminal.vte.copy_clipboard()
+            return True
+
+        if ConfigManager.key_event_compare('paste-key', event):
+            self.notebook.get_nth_page(self.notebook.get_current_page()).active_terminal.vte.paste_clipboard()
+            return True
+
+        if ConfigManager.key_event_compare('split-v-key', event):
+            self.notebook.get_nth_page(self.notebook.get_current_page()).active_terminal.split_axis(None, 'v')
+            return True
+
+        if ConfigManager.key_event_compare('split-h-key', event):
+            self.notebook.get_nth_page(self.notebook.get_current_page()).active_terminal.split_axis(None, 'h')
+            return True
+
+        if ConfigManager.key_event_compare('close-node-key', event):
+            self.notebook.get_nth_page(self.notebook.get_current_page()).active_terminal.close_node(None)
             return True
 
         if ConfigManager.key_event_compare('fullscreen-key', event):
