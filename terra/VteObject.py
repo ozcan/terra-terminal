@@ -25,15 +25,16 @@ from preferences import Preferences
 from config import ConfigManager
 
 
-class VteObjectContainer(Gtk.Box):
+class VteObjectContainer(Gtk.HBox):
     def __init__(self):
         super(VteObjectContainer, self).__init__()
-        self.pack_start(VteObject(), True, True, 0)
+        self.active_terminal = VteObject()
+        self.pack_start(self.active_terminal , True, True, 0)
         self.show_all()
 
-class VteObject(Gtk.Box):
+class VteObject(Gtk.HBox):
     def __init__(self):
-        super(VteObject, self).__init__()
+        super(Gtk.HBox, self).__init__()
         ConfigManager.add_callback(self.update_ui)
 
         self.vte = Vte.Terminal()
@@ -83,6 +84,11 @@ class VteObject(Gtk.Box):
         self.show_all()
 
     def on_button_release(self, widget, event):
+        parent = widget.get_parent()
+        while type(parent) != VteObjectContainer:
+            parent = parent.get_parent()
+
+        parent.active_terminal = self
         if event.button == 3:
             self.menu = Gtk.Menu()
             self.menu.connect('deactivate', lambda w: setattr(ConfigManager, 'disable_losefocus_temporary', False))
@@ -138,6 +144,10 @@ class VteObject(Gtk.Box):
         if type(parent) == VteObjectContainer:
             return
 
+        container = parent
+        while type(container) != VteObjectContainer:
+            container = container.get_parent()
+
         if parent.get_child1() == self:
             sibling = parent.get_child2()
         else:
@@ -157,6 +167,9 @@ class VteObject(Gtk.Box):
                 top_level.remove(parent)
                 top_level.pack2(sibling, True, True)
 
+        sibling.vte.grab_focus()
+        container.active_terminal = sibling
+
     def split_axis(self, widget, axis='h'):
         parent = self.get_parent()
         if type(parent) != VteObjectContainer:
@@ -167,6 +180,10 @@ class VteObject(Gtk.Box):
         else:
             mode = 0
 
+        container = parent
+        while type(container) != VteObjectContainer:
+            container = container.get_parent()
+
         if axis == 'h':
             paned = Gtk.HPaned()
             paned.set_property('position', self.get_allocation().width / 2)
@@ -175,7 +192,8 @@ class VteObject(Gtk.Box):
             paned.set_property('position', self.get_allocation().height / 2)
         parent.remove(self)
         paned.pack1(self, True, True)
-        paned.pack2(VteObject(), True, True)
+        new_terminal = VteObject()
+        paned.pack2(new_terminal, True, True)
         paned.show_all()
         if mode == 0:
             parent.pack_start(paned, True, True, 0)
@@ -184,3 +202,5 @@ class VteObject(Gtk.Box):
         else:
             parent.pack2(paned, True, True)
         parent.show_all()
+        container.active_terminal = new_terminal
+        new_terminal.vte.grab_focus()

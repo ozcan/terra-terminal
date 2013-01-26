@@ -68,7 +68,6 @@ class ConfigManager():
 
     ref_keybinding = None
     ref_show_hide = None
-
     disable_losefocus_temporary = False
 
     data_dir = __terra_data_directory__

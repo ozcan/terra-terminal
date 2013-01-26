@@ -92,6 +92,7 @@ class GlobalKeyBinding(GObject.GObject, threading.Thread):
         wait_for_release = False
         while self.running:
             event = self.display.next_event()
+            self.current_event_time = event.time
             if event.detail == self.keycode and event.type == X.KeyPress and not wait_for_release:
                 modifiers = event.state & self.known_modifiers_mask
                 if modifiers == self.modifiers:

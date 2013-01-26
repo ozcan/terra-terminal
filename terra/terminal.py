@@ -31,6 +31,7 @@ class TerminalWin(Gtk.Window):
     def __init__(self):
         super(TerminalWin, self).__init__()
 
+        self.keybinding = None
         self.builder = Gtk.Builder()
         self.builder.add_from_file(ConfigManager.data_dir + 'ui/main.ui')
 
@@ -38,11 +39,12 @@ class TerminalWin(Gtk.Window):
         ConfigManager.show_hide_callback = self.show_hide
 
         self.screen = self.get_screen()
-
+        self.losefocus_time = 0
         self.init_transparency()
         self.init_ui()
-        self.update_ui()
         self.add_page()
+        self.update_ui()
+        
 
         if ConfigManager.get_conf('hide-on-start'):
             self.hide()
@@ -78,7 +80,7 @@ class TerminalWin(Gtk.Window):
 
         self.connect('destroy', lambda w: self.quit())
         self.connect('key-press-event', self.on_keypress)
-        self.connect('focus-out-event', self.on_losefocus)
+        #self.connect('focus-out-event', self.on_losefocus)
 
         self.add(self.resizer)
 
@@ -98,7 +100,7 @@ class TerminalWin(Gtk.Window):
             ConfigManager.set_conf('height', str(new_percent))
             ConfigManager.save_config()
 
-
+    # not working
     def on_losefocus(self, window, event):
         if ConfigManager.get_conf('losefocus-hiding') and not ConfigManager.disable_losefocus_temporary:
             self.hide()
@@ -106,7 +108,7 @@ class TerminalWin(Gtk.Window):
     def add_page(self):
         self.notebook.append_page(VteObjectContainer(), None)
         self.notebook.set_current_page(-1)
-
+        self.notebook.get_nth_page(self.notebook.get_current_page()).active_terminal.vte.grab_focus()
         self.notebook_page_counter += 1
         new_button = Gtk.RadioButton.new_with_label_from_widget(self.radio_group_leader, "Terminal " + str(self.notebook_page_counter))
 
@@ -126,6 +128,7 @@ class TerminalWin(Gtk.Window):
             if i != self.radio_group_leader:
                 if i == button:
                     self.notebook.set_current_page(page_no)
+                    self.notebook.get_nth_page(page_no).active_terminal.vte.grab_focus()
                     return
                 page_no = page_no + 1
 
@@ -216,6 +219,7 @@ class TerminalWin(Gtk.Window):
 
         self.move(horizontal_position, vertical_position)
         self.show_all()
+        
 
     def on_keypress(self, widget, event):
         if ConfigManager.key_event_compare('quit-key', event):
@@ -334,6 +338,7 @@ def main():
     app = TerminalWin()
 
     keybinding = GlobalKeyBinding()
+    app.keybinding = keybinding
     ConfigManager.ref_keybinding = keybinding
     ConfigManager.ref_show_hide = app.show_hide
     keybinding.connect('activate', lambda w: app.show_hide())
