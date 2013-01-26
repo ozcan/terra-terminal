@@ -87,7 +87,7 @@ class InstallAndUpdateDataDirectory(DistUtilsExtra.auto.install_auto):
 
 DistUtilsExtra.auto.setup(
     name='terra',
-    version='0.1.2',
+    version='0.2',
     license='GPL-3',
     author='Ozcan ESEN',
     author_email='ozcanesen@gmail.com',
