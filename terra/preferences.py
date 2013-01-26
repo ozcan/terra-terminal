@@ -155,6 +155,30 @@ class Preferences():
         self.global_key.set_text(ConfigManager.get_conf('global-key'))
         self.global_key.connect('key-press-event', self.generate_key_string)
 
+        self.select_all_key = builder.get_object('select_all_key')
+        self.select_all_key.set_text(ConfigManager.get_conf('select-all-key'))
+        self.select_all_key.connect('key-press-event', self.generate_key_string)
+
+        self.copy_key = builder.get_object('copy_key')
+        self.copy_key.set_text(ConfigManager.get_conf('copy-key'))
+        self.copy_key.connect('key-press-event', self.generate_key_string)
+
+        self.paste_key = builder.get_object('paste_key')
+        self.paste_key.set_text(ConfigManager.get_conf('paste-key'))
+        self.paste_key.connect('key-press-event', self.generate_key_string)
+
+        self.split_v_key = builder.get_object('split_v_key')
+        self.split_v_key.set_text(ConfigManager.get_conf('split-v-key'))
+        self.split_v_key.connect('key-press-event', self.generate_key_string)
+
+        self.split_h_key = builder.get_object('split_h_key')
+        self.split_h_key.set_text(ConfigManager.get_conf('split-h-key'))
+        self.split_h_key.connect('key-press-event', self.generate_key_string)
+
+        self.close_node_key = builder.get_object('close_node_key')
+        self.close_node_key.set_text(ConfigManager.get_conf('close-node-key'))
+        self.close_node_key.connect('key-press-event', self.generate_key_string)
+
         self.chk_run_on_startup = builder.get_object('chk_run_on_startup')
         self.chk_run_on_startup.set_active(os.path.exists(os.environ['HOME'] + '/.config/autostart/terra.desktop'))
 
@@ -245,6 +269,18 @@ class Preferences():
         ConfigManager.set_conf('prev-page-key', self.prev_page_key.get_text())
 
         ConfigManager.set_conf('global-key', self.global_key.get_text())
+
+        ConfigManager.set_conf('select-all-key', self.select_all_key.get_text())
+
+        ConfigManager.set_conf('copy-key', self.copy_key.get_text())
+
+        ConfigManager.set_conf('paste-key', self.paste_key.get_text())
+
+        ConfigManager.set_conf('split-h-key', self.split_h_key.get_text())
+
+        ConfigManager.set_conf('split-v-key', self.split_v_key.get_text())
+
+        ConfigManager.set_conf('close-node-key', self.close_node_key.get_text())
 
         if (self.chk_run_on_startup.get_active() and not os.path.exists(os.environ['HOME'] + '/.config/autostart/terra.desktop')):
             os.system('cp /usr/share/applications/terra.desktop ' + os.environ['HOME'] + '/.config/autostart/terra.desktop')

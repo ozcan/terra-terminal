@@ -183,7 +183,6 @@ class TerminalWin(Gtk.Window):
     def update_ui(self):
 
         self.set_decorated(ConfigManager.get_conf('use-border'))
-
         self.set_skip_taskbar_hint(ConfigManager.get_conf('skip-taskbar'))
 
         css_provider = Gtk.CssProvider()
@@ -219,7 +218,6 @@ class TerminalWin(Gtk.Window):
 
         self.move(horizontal_position, vertical_position)
         self.show_all()
-        
 
     def on_keypress(self, widget, event):
         if ConfigManager.key_event_compare('quit-key', event):
@@ -314,6 +312,7 @@ class TerminalWin(Gtk.Window):
             self.hide()
         else:
             self.update_ui()
+            self.present()
 
     def quit(self):
         Gtk.main_quit()

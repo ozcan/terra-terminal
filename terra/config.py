@@ -45,7 +45,7 @@ class ConfigManager():
         'use-default-font': 'True',
         'font-name': 'Monospace 10',
         'show-scrollbar': 'True',
-        'losefocus-hiding': 'True',
+        'losefocus-hiding': 'False',
         'hide-on-start': 'False',
         'global-key': 'F12',
         'quit-key': '<Control>q',
