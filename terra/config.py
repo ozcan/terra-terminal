@@ -60,7 +60,8 @@ class ConfigManager():
         'paste-key': '<Control><Shift>V',
         'split-v-key': '<Control><Shift>J',
         'split-h-key': '<Control><Shift>H',
-        'close-node-key': '<Control><Shift>K'
+        'close-node-key': '<Control><Shift>K',
+        'always-on-top': 'False'
         })
 
     cfg_dir = '/.config/terra/'

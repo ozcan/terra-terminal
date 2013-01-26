@@ -181,7 +181,7 @@ class TerminalWin(Gtk.Window):
                 page_no = page_no + 1
 
     def update_ui(self):
-
+        self.set_keep_above(ConfigManager.get_conf('always-on-top'))
         self.set_decorated(ConfigManager.get_conf('use-border'))
         self.set_skip_taskbar_hint(ConfigManager.get_conf('skip-taskbar'))
 

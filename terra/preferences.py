@@ -117,6 +117,9 @@ class Preferences():
         self.chk_show_scrollbar = builder.get_object('chk_show_scrollbar')
         self.chk_show_scrollbar.set_active(ConfigManager.get_conf('show-scrollbar'))
 
+        self.chk_always_on_top = builder.get_object('chk_always_on_top')
+        self.chk_always_on_top.set_active(ConfigManager.get_conf('always-on-top'))
+
         self.chk_losefocus = builder.get_object('chk_losefocus')
         self.chk_losefocus.set_active(ConfigManager.get_conf('losefocus-hiding'))
 
@@ -249,6 +252,8 @@ class Preferences():
         ConfigManager.set_conf('font-name', self.font_name.get_font_name())
 
         ConfigManager.set_conf('show-scrollbar', self.chk_show_scrollbar.get_active())
+
+        ConfigManager.set_conf('always-on-top', self.chk_always_on_top.get_active())
 
         ConfigManager.set_conf('losefocus-hiding', self.chk_losefocus.get_active())
 
