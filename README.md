@@ -32,7 +32,7 @@ Rpm and Pisi packages will be added soon.
 
 Reviews about Terra
 ========
-WebUpd8: [Link](http://www.webupd8.org/2013/02/terra-drop-down-terminal-emulator-with.html)
+WebUpd8: [Link](http://www.webupd8.org/2013/02/terra-drop-down-terminal-emulator-with.html) [Link-2](http://www.webupd8.org/2013/03/terra-terminal-update-brings-improved.html)
 
 HecticGeek: [Link](http://www.hecticgeek.com/2012/12/terra-new-terminal-emulator-dropdown-support/)
 
@@ -40,7 +40,7 @@ Ubuntu-TR (Turkish): [Link](http://forum.ubuntu-tr.net/index.php?topic=36944.0)
 
 Ubuntu-TR Sudo E-Magazine (Turkish): [pdf](http://sudo.ubuntu-tr.net/dergi/paket/sudo_16_Aralik_2012_sayi48.pdf)
 
-ILoveUbuntu: [Link](http://www.iloveubuntu.net/meet-terra-drop-down-terminal-horizontal-and-vertical-split) [Link-2](http://www.iloveubuntu.net/terra-terminal-app-015-released-transparency-and-multi-monitor-support)
+ILoveUbuntu: [Link](http://www.iloveubuntu.net/meet-terra-drop-down-terminal-horizontal-and-vertical-split) [Link-2](http://www.iloveubuntu.net/terra-terminal-app-015-released-transparency-and-multi-monitor-support) [Link-3](http://www.iloveubuntu.net/terra-terminal-updated-absolute-mode-and-new-keyboard-shortcuts) [Link-4](http://www.iloveubuntu.net/terra-terminal-app-016-adds-tabs-remembrance-and-fixes)
 
 OsArena (Greek): [Link](http://osarena.net/logismiko/applications/terra-ena-drop-down-termatiko-me-orizontia-ke-katheti-diaspasi.html)
 
