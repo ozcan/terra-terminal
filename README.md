@@ -19,7 +19,7 @@ Ubuntu 12.04 / 12.10 / 13.04
 `sudo apt-get update && sudo apt-get install terra`
 
 
-Archlinux (AUR) (package created by **williemw**)
+Archlinux (AUR) (package created by **willemw**)
 
 https://aur.archlinux.org/packages/terra-bzr/
 
