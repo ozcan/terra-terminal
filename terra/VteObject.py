@@ -56,7 +56,7 @@ class VteObject(Gtk.HBox):
         self.vte.fork_command_full(
             Vte.PtyFlags.DEFAULT,
             run_dir,
-            [ConfigManager.get_conf('shell')],
+            ConfigManager.get_conf('shell').split(),
             [],
             GLib.SpawnFlags.DO_NOT_REAP_CHILD,
             None,
