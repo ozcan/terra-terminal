@@ -1,15 +1,13 @@
+This repository is outdated please use Sixdsn's fork at (https://github.com/Sixdsn/terra-terminal)
+
 Terra Terminal Emulator
 ========
 
 Terra is GTK+3.0 based terminal emulator with useful user interface, it also supports multiple terminals with splitting screen horizontally or vertically. New features will be added soon. It's very new and experimental project. I'ts written in python with python-gobject, If you want to contribute just checkout and try. I really appreciate the bug reports.
 
-IMPARTANT: Terra moved to launchpad.net. 
-
 * Project homepage: https://launchpad.net/terra
-* Code Repository: https://code.launchpad.net/~ozcanesen/terra/trunk
 
-
-Intalling Terra
+Installing Terra
 ========
 
 Ubuntu 12.04 / 12.10 / 13.04
@@ -27,8 +25,6 @@ https://aur.archlinux.org/packages/terra-bzr/
 Gentoo (package created by **Julian Ospald (hasufell)**)
 
 http://packages.gentoo.org/package/x11-terms/terra
-
-Rpm and Pisi packages will be added soon.
 
 Reviews about Terra
 ========
